@@ -1,0 +1,27 @@
+#include "services_dune.fcl"
+#include "RecoAnaConfig.fcl"
+
+process_name: RecoAna
+
+source:
+{
+  module_type: RootInput
+  maxEvents:   -1
+}
+
+services:
+{
+  @table::protodune_services
+}
+
+physics:
+{
+  analyzers:
+  {
+    recoana: @local::RecoAna
+  }
+  path0:      [ recoana ]
+  end_paths:  [ path0 ]
+}
+
+services.Geometry: @local::protodune_geo

@@ -1,0 +1,11 @@
+## protoDUNE_refactored_reco_35ms_sce_datadriven.fcl with nov2019 channel status
+
+#include "protoDUNE_refactored_reco_35ms_sce_datadriven.fcl"
+
+process_name: RecoChnov2019
+
+services.ChannelStatusService: @local::pdsp_channel_status_nov2019
+
+outputs.out1.outputCommands: [ "keep *" ]
+
+

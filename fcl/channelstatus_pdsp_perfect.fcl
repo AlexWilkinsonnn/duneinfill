@@ -1,0 +1,20 @@
+# channelstatus_pdsp_perfect.fcl
+
+# Perfect channels for protDUNE single phase.
+
+BEGIN_PROLOG
+
+pdsp_channel_status_perfect: {
+ 
+  # implements IChannelStatusService
+  service_provider: SimpleChannelStatusService
+
+  # list of bad channels:
+  BadChannels:   [ ]
+
+  # list of bad noisy channels:
+  NoisyChannels: [ ]
+
+}
+
+END_PROLOG

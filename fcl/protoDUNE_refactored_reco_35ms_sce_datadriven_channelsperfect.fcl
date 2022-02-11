@@ -1,0 +1,22 @@
+## protoDUNE_refactored_reco_35ms_sce_datadriven.fcl with perfect (no dead of noisy) channel status
+
+#include "protoDUNE_refactored_reco_35ms_sce_datadriven.fcl"
+
+pdsp_channel_status_perfect: {
+ 
+  # implements IChannelStatusService
+  service_provider: SimpleChannelStatusService
+
+  # list of bad channels:
+  BadChannels:   [ ]
+
+  # list of bad noisy channels:
+  NoisyChannels: [ ]
+
+}
+
+process_name: RecoChPerfect
+
+services.ChannelStatusService: @local::pdsp_channel_status_perfect
+
+outputs.out1.outputCommands: [ "keep *" ]
