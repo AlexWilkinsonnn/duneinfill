@@ -1,0 +1,52 @@
+#include "services_dune.fcl"
+#include "InfillChannelsConfig.fcl"
+
+process_name: InfillChannelsPD
+
+source:
+{
+  module_type: RootInput
+  maxEvents:   -1
+}
+
+services:
+{
+  @table::protodune_services
+  ChannelStatusService: @local::pdsp_channel_status_nov2019
+  TimeTracker:          @local::dune_time_tracker
+  MemoryTracker:        @local::dune_memory_tracker
+}
+
+services.Geometry.GDML: "protodune_v7.gdml"
+services.Geometry.ROOT: "protodune_v7.gdml"
+
+outputs:
+{
+  out1:
+  {
+    module_type: RootOutput
+    fileName:    "%ifb_infill.root"
+    outputCommands: [ "keep *" ]
+    compressionLevel: 1 #zlib argument (0-9)
+    fastCloning: true
+  }
+}
+
+
+physics:
+{
+  producers:
+  {
+    infill: @local::InfillChannels
+  }
+  reco:          [ infill ]
+  stream1:       [ out1 ]
+  trigger_paths: [reco]
+  end_paths:     [stream1]
+}
+
+services.Geometry: @local::protodune_geo
+
+physics.producers.infill.InputLabel:          "tpcrawdecoder:daq"
+physics.producers.infill.InfillBadChannels:   true
+physics.producers.infill.InfillNoisyChannels: false
