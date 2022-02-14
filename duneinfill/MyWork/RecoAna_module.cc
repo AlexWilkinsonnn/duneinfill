@@ -72,8 +72,9 @@ Infill::RecoAna::RecoAna(fhicl::ParameterSet const& p)
   // consumes<std::vector<recob::Hit>>(art::InputTag("gaushit", "", "RecoChPerfect"));
   // consumes<std::vector<recob::Hit>>(art::InputTag("gaushit", "", "RecoChnov2019"));
 
-  // consumes<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChPerfect"));
-  // consumes<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019"));
+  consumes<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChPerfect"));
+  consumes<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019"));
+  consumes<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019Infill"));
 
   consumes<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChPerfect"));
   consumes<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChnov2019"));
@@ -181,9 +182,11 @@ void Infill::RecoAna::analyze(art::Event const& e)
 
   const auto particlePIDsPerfect = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChPerfect"));
   const auto particlePIDsReal = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019"));
+  const auto particlePIDsInfill = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019Infill"));
 
   std::map<int, int> particlePIDBestCntrPerfect;
   std::map<int, int> particlePIDBestCntrReal;
+  std::map<int, int> particlePIDBestCntrInfill;
   for (auto pID : *particlePIDsPerfect) {
     if (pID.ParticleIDAlgScores().size() != 0) {
       int pdg = 0;
@@ -214,6 +217,21 @@ void Infill::RecoAna::analyze(art::Event const& e)
       particlePIDBestCntrReal[pdg]++;
     }
   }
+  for (auto pID : *particlePIDsInfill) {
+    if (pID.ParticleIDAlgScores().size() != 0) {
+      int pdg = 0;
+      int score = 0;
+      for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
+        if (pIDAlgScore.fAlgName == "Chi2") {
+          if (pIDAlgScore.fValue > score) {
+            score = pIDAlgScore.fValue;
+            pdg = pIDAlgScore.fAssumedPdg;
+          }
+        }
+      }
+      particlePIDBestCntrInfill[pdg]++;
+    }
+  }
 
   std::cout << "--Perfect--\n";
   for (auto particlePIDBestCnt : particlePIDBestCntrPerfect) {
@@ -221,6 +239,10 @@ void Infill::RecoAna::analyze(art::Event const& e)
   }
   std::cout << "--Real--\n";
   for (auto particlePIDBestCnt : particlePIDBestCntrReal) {
+    std::cout << particlePIDBestCnt.first << ": " << particlePIDBestCnt.second << "\n";
+  } 
+  std::cout << "--Infill--\n";
+  for (auto particlePIDBestCnt : particlePIDBestCntrInfill) {
     std::cout << particlePIDBestCnt.first << ": " << particlePIDBestCnt.second << "\n";
   } 
   std::cout << "--True--\n";
