@@ -7,5 +7,6 @@ process_name: RecoChnov2019
 services.ChannelStatusService: @local::pdsp_channel_status_nov2019
 
 outputs.out1.outputCommands: [ "keep *" ]
+outputs.out1.fileName: "%ifb_nov2019reco.root"
 
 

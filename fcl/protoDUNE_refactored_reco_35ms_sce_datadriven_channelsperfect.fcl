@@ -20,3 +20,5 @@ process_name: RecoChPerfect
 services.ChannelStatusService: @local::pdsp_channel_status_perfect
 
 outputs.out1.outputCommands: [ "keep *" ]
+outputs.out1.fileName: "%ifb_perfectreco.root"
+
