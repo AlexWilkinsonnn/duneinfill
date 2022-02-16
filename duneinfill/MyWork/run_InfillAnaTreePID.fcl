@@ -1,7 +1,7 @@
 #include "services_dune.fcl"
-#include "InfillAnaTreePIDConfig.fcl"
+#include "InfillAnaTreeConfig.fcl"
 
-process_name: InfillAnaTreePID
+process_name: InfillAnaTree
 
 source:
 {
@@ -19,9 +19,9 @@ physics:
 {
   analyzers:
   {
-    infillanapid: @local::InfillAnaTreePID
+    infillanapid: @local::InfillAnaTree
   }
-  path0:      [ infillanapid ]
+  path0:      [ infillana ]
   end_paths:  [ path0 ]
 }
 

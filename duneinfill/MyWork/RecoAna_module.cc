@@ -183,19 +183,20 @@ void Infill::RecoAna::analyze(art::Event const& e)
 
   const auto particlePIDsPerfect = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChPerfect"));
   const auto particlePIDsReal = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019"));
-  // const auto particlePIDsInfill = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019Infill"));
-  const auto particlePIDsNoisy = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019Noisy"));
+  const auto particlePIDsInfill = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019Infill"));
+  // const auto particlePIDsNoisy = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019Noisy"));
 
   std::map<int, int> particlePIDBestCntrPerfect;
   std::map<int, int> particlePIDBestCntrReal;
   std::map<int, int> particlePIDBestCntrInfill;
-  std::map<int, int> particlePIDBestCntrNoisy;
+  // std::map<int, int> particlePIDBestCntrNoisy;
   for (auto pID : *particlePIDsPerfect) {
     if (pID.ParticleIDAlgScores().size() != 0) {
       int pdg = 0;
       int score = 0;
       for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
         if (pIDAlgScore.fAlgName == "Chi2") {
+          std::cout << pIDAlgScore.fAssumedPdg << ", " << pIDAlgScore.fValue << "\n";
           if (pIDAlgScore.fValue > score) {
             score = pIDAlgScore.fValue;
             pdg = pIDAlgScore.fAssumedPdg;
@@ -220,22 +221,7 @@ void Infill::RecoAna::analyze(art::Event const& e)
       particlePIDBestCntrReal[pdg]++;
     }
   }
-  // for (auto pID : *particlePIDsInfill) {
-  //   if (pID.ParticleIDAlgScores().size() != 0) {
-  //     int pdg = 0;
-  //     int score = 0;
-  //     for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
-  //       if (pIDAlgScore.fAlgName == "Chi2") {
-  //         if (pIDAlgScore.fValue > score) {
-  //           score = pIDAlgScore.fValue;
-  //           pdg = pIDAlgScore.fAssumedPdg;
-  //         }
-  //       }
-  //     }
-  //     particlePIDBestCntrInfill[pdg]++;
-  //   }
-  // }
-  for (auto pID : *particlePIDsNoisy) {
+  for (auto pID : *particlePIDsInfill) {
     if (pID.ParticleIDAlgScores().size() != 0) {
       int pdg = 0;
       int score = 0;
@@ -247,9 +233,24 @@ void Infill::RecoAna::analyze(art::Event const& e)
           }
         }
       }
-      particlePIDBestCntrNoisy[pdg]++;
+      particlePIDBestCntrInfill[pdg]++;
     }
   }
+  // for (auto pID : *particlePIDsNoisy) {
+  //   if (pID.ParticleIDAlgScores().size() != 0) {
+  //     int pdg = 0;
+  //     int score = 0;
+  //     for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
+  //       if (pIDAlgScore.fAlgName == "Chi2") {
+  //         if (pIDAlgScore.fValue > score) {
+  //           score = pIDAlgScore.fValue;
+  //           pdg = pIDAlgScore.fAssumedPdg;
+  //         }
+  //       }
+  //     }
+  //     particlePIDBestCntrNoisy[pdg]++;
+  //   }
+  // }
 
   std::cout << "--Perfect--\n";
   for (auto particlePIDBestCnt : particlePIDBestCntrPerfect) {
@@ -259,14 +260,14 @@ void Infill::RecoAna::analyze(art::Event const& e)
   for (auto particlePIDBestCnt : particlePIDBestCntrReal) {
     std::cout << particlePIDBestCnt.first << ": " << particlePIDBestCnt.second << "\n";
   } 
-  std::cout << "--Real+Noisy--\n";
-  for (auto particlePIDBestCnt : particlePIDBestCntrNoisy) {
-    std::cout << particlePIDBestCnt.first << ": " << particlePIDBestCnt.second << "\n";
-  } 
-  // std::cout << "--Infill--\n";
-  // for (auto particlePIDBestCnt : particlePIDBestCntrInfill) {
+  // std::cout << "--Real+Noisy--\n";
+  // for (auto particlePIDBestCnt : particlePIDBestCntrNoisy) {
   //   std::cout << particlePIDBestCnt.first << ": " << particlePIDBestCnt.second << "\n";
   // } 
+  std::cout << "--Infill--\n";
+  for (auto particlePIDBestCnt : particlePIDBestCntrInfill) {
+    std::cout << particlePIDBestCnt.first << ": " << particlePIDBestCnt.second << "\n";
+  } 
   std::cout << "--True--\n";
 
   const auto trueGenParticles = e.getValidHandle<std::vector<simb::MCTruth>>(art::InputTag("generator", "", "SinglesGen"));
