@@ -78,6 +78,9 @@ private:
   std::string fPerfectTrackLabel;
   std::string fRealTrackLabel;
   std::string fInfillTrackLabel;
+  std::string fPerfectShowerLabel;
+  std::string fRealShowerLabel;
+  std::string fInfillShowerLabel;
   
   TTree*              fTreePID;
   std::vector<double> fPerfectMuonChi2s;
@@ -110,9 +113,17 @@ private:
   int              fInfillNPFParticles;
 
   TTree*              fTreeTrack;
-  std::vector<double> fPerfectLengths;
-  std::vector<double> fRealLengths;
-  std::vector<double> fInfillLengths;
+  std::vector<double> fPerfectTrackLengths;
+  std::vector<double> fRealTrackLengths;
+  std::vector<double> fInfillTrackLengths;
+
+  TTree*              fTreeShower;
+  std::vector<double> fPerfectShowerLengths;
+  std::vector<double> fRealShowerLengths;
+  std::vector<double> fInfillShowerLengths;
+  std::vector<double> fPerfectShowerOpenAngles;
+  std::vector<double> fRealShowerOpenAngles;
+  std::vector<double> fInfillShowerOpenAngles;
 
   int fRun;
   int fSubRun;
@@ -131,7 +142,10 @@ Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
     fTruthLabel             (p.get<std::string> ("TruthLabel")),
     fPerfectTrackLabel      (p.get<std::string> ("PerfectTrackLabel")),
     fRealTrackLabel         (p.get<std::string> ("RealTrackLabel")),
-    fInfillTrackLabel       (p.get<std::string> ("InfillTrackLabel"))
+    fInfillTrackLabel       (p.get<std::string> ("InfillTrackLabel")),
+    fPerfectShowerLabel     (p.get<std::string> ("PerfectShowerLabel")),
+    fRealShowerLabel        (p.get<std::string> ("RealShowerLabel")),
+    fInfillShowerLabel      (p.get<std::string> ("InfillShowerLabel"))
 {
   consumes<std::vector<anab::ParticleID>>(fPerfectParticleIDLabel);
   consumes<std::vector<anab::ParticleID>>(fRealParticleIDLabel);
@@ -146,6 +160,10 @@ Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
   consumes<std::vector<recob::Track>>(fPerfectTrackLabel);
   consumes<std::vector<recob::Track>>(fRealTrackLabel);
   consumes<std::vector<recob::Track>>(fInfillTrackLabel);
+
+  consumes<std::vector<recob::Shower>>(fPerfectShowerLabel);
+  consumes<std::vector<recob::Shower>>(fRealShowerLabel);
+  consumes<std::vector<recob::Shower>>(fInfillShowerLabel);
 
   art::ServiceHandle<art::TFileService> tfs;
 
@@ -189,9 +207,20 @@ Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
   fTreeTrack->Branch("Run", &fRun, "run/I");
   fTreeTrack->Branch("SubRun", &fSubRun, "subrun/I");
   fTreeTrack->Branch("EventNum", &fEventNum, "eventnum/I");
-  fTreeTrack->Branch("PerfectLengths", &fPerfectLengths);
-  fTreeTrack->Branch("RealLengths", &fRealLengths);
-  fTreeTrack->Branch("InfillLengths", &fInfillLengths);
+  fTreeTrack->Branch("PerfectTrackLengths", &fPerfectTrackLengths);
+  fTreeTrack->Branch("RealTrackLengths", &fRealTrackLengths);
+  fTreeTrack->Branch("InfillTrackLengths", &fInfillTrackLengths);
+
+  fTreeShower = tfs->make<TTree>("InfillAnaTreeShower", "InfillAnaTreeShower");
+  fTreeShower->Branch("Run", &fRun, "run/I");
+  fTreeShower->Branch("SubRun", &fSubRun, "subrun/I");
+  fTreeShower->Branch("EventNum", &fEventNum, "eventnum/I");
+  fTreeShower->Branch("PerfectShowerLengths", &fPerfectShowerLengths);
+  fTreeShower->Branch("RealShowerLengths", &fRealShowerLengths);
+  fTreeShower->Branch("InfillShowerLengths", &fInfillShowerLengths);
+  fTreeShower->Branch("PerfectShowerOpenAngles", & fPerfectShowerOpenAngles);
+  fTreeShower->Branch("RealShowerOpenAngles", & fRealShowerOpenAngles);
+  fTreeShower->Branch("InfillShowerOpenAngles", & fInfillShowerOpenAngles);
 }
 
 void Infill::InfillAnaTree::analyze(art::Event const& e)
@@ -311,16 +340,36 @@ void Infill::InfillAnaTree::analyze(art::Event const& e)
   const auto TracksInfill = e.getValidHandle<std::vector<recob::Track>>(fInfillTrackLabel);
 
   for (auto track : *TracksPerfect) {
-    fPerfectLengths.push_back(track.Length());
+    fPerfectTrackLengths.push_back(track.Length());
   }
   for (auto track : *TracksReal) {
-    fRealLengths.push_back(track.Length());
+    fRealTrackLengths.push_back(track.Length());
   }
   for (auto track : *TracksInfill) {
-    fInfillLengths.push_back(track.Length());
+    fInfillTrackLengths.push_back(track.Length());
   }
 
   fTreeTrack->Fill();
+
+  // Dump recob::Shower data
+  const auto ShowersPerfect = e.getValidHandle<std::vector<recob::Shower>>(fPerfectShowerLabel);
+  const auto ShowersReal = e.getValidHandle<std::vector<recob::Shower>>(fRealShowerLabel);
+  const auto ShowersInfill = e.getValidHandle<std::vector<recob::Shower>>(fInfillShowerLabel);
+
+  for (auto shower : *ShowersPerfect) { 
+    fPerfectShowerLengths.push_back(shower.Length());
+    fPerfectShowerOpenAngles.push_back(shower.OpenAngle());
+  }
+  for (auto shower : *ShowersReal) { 
+    fRealShowerLengths.push_back(shower.Length());
+    fRealShowerOpenAngles.push_back(shower.OpenAngle());
+  }
+  for (auto shower : *ShowersInfill) { 
+    fInfillShowerLengths.push_back(shower.Length());
+    fInfillShowerOpenAngles.push_back(shower.OpenAngle());
+  }
+
+  fTreeShower->Fill();  
 }
 
 void Infill::InfillAnaTree::beginJob()
@@ -365,6 +414,17 @@ void Infill::InfillAnaTree::reset()
   fPerfectNPFParticles = 0;
   fRealNPFParticles = 0;
   fInfillNPFParticles = 0;
+
+  fPerfectTrackLengths.clear();
+  fRealTrackLengths.clear();
+  fInfillTrackLengths.clear();
+
+  fPerfectShowerLengths.clear();
+  fRealShowerLengths.clear();
+  fInfillShowerLengths.clear();
+  fPerfectShowerOpenAngles.clear();
+  fRealShowerOpenAngles.clear();
+  fInfillShowerOpenAngles.clear();
 }
 
 DEFINE_ART_MODULE(Infill::InfillAnaTree)

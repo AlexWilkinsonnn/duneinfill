@@ -16,6 +16,10 @@ InfillAnaTree:
   RealTrackLabel:    "pandoraTrack::RecoChnov2019"
   InfillTrackLabel:  "pandoraTrack::RecoChnov2019Infill"
 
+  PerfectShowerLabel: "pandoraShower::RecoChPerfect"
+  RealShowerLabel:    "pandoraShower::RecoChnov2019"
+  InfillShowerLabel:  "pandoraShower::RecoChnov2019Infill"
+
   TruthLabel: "generator::SinglesGen"
 }
 
