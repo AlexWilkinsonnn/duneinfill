@@ -12,6 +12,10 @@ InfillAnaTree:
   RealPFParticleLabel:    "pandora::RecoChnov2019"
   InfillPFParticleLabel:  "pandora::RecoChnov2019Infill"
 
+  PerfectTrackLabel: "pandoraTrack::RecoChPerfect"
+  RealTrackLabel:    "pandoraTrack::RecoChnov2019"
+  InfillTrackLabel:  "pandoraTrack::RecoChnov2019Infill"
+
   TruthLabel: "generator::SinglesGen"
 }
 

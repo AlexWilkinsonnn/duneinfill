@@ -12,7 +12,7 @@ source:
 services:
 {
   @table::protodune_services
-  TFileService: { fileName: "infill_ana.root" }
+  TFileService: { fileName: "infill_ana_pandora.root" }
 }
 
 physics:
@@ -34,3 +34,6 @@ physics.analyzers.infillana.InfillParticleIDLabel:  "pandorapid::RecoChnov2019In
 physics.analyzers.infillana.PerfectPFParticleLabel: "pandora::RecoChPerfect"
 physics.analyzers.infillana.RealPFParticleLabel:    "pandora::RecoChnov2019"
 physics.analyzers.infillana.InfillPFParticleLabel:  "pandora::RecoChnov2019Infill"
+physics.analyzers.infillana.PerfectTrackLabel: "pandoraTrack::RecoChPerfect"
+physics.analyzers.infillana.RealTrackLabel:    "pandoraTrack::RecoChnov2019"
+physics.analyzers.infillana.InfillTrackLabel:  "pandoraTrack::RecoChnov2019Infill"

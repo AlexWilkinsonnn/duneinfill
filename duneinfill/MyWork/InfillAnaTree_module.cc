@@ -75,6 +75,9 @@ private:
   std::string fRealPFParticleLabel;
   std::string fInfillPFParticleLabel;
   std::string fTruthLabel;
+  std::string fPerfectTrackLabel;
+  std::string fRealTrackLabel;
+  std::string fInfillTrackLabel;
   
   TTree*              fTreePID;
   std::vector<double> fPerfectMuonChi2s;
@@ -106,6 +109,11 @@ private:
   int              fRealNPFParticles;
   int              fInfillNPFParticles;
 
+  TTree*              fTreeTrack;
+  std::vector<double> fPerfectLengths;
+  std::vector<double> fRealLengths;
+  std::vector<double> fInfillLengths;
+
   int fRun;
   int fSubRun;
   int fEventNum;
@@ -115,12 +123,15 @@ private:
 Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
   : EDAnalyzer{p},
     fPerfectParticleIDLabel (p.get<std::string> ("PerfectParticleIDLabel")),
-    fRealParticleIDLabel (p.get<std::string> ("RealParticleIDLabel")),
-    fInfillParticleIDLabel (p.get<std::string> ("InfillParticleIDLabel")),
+    fRealParticleIDLabel    (p.get<std::string> ("RealParticleIDLabel")),
+    fInfillParticleIDLabel  (p.get<std::string> ("InfillParticleIDLabel")),
     fPerfectPFParticleLabel (p.get<std::string> ("PerfectPFParticleLabel")),
-    fRealPFParticleLabel (p.get<std::string> ("RealPFParticleLabel")),
-    fInfillPFParticleLabel (p.get<std::string> ("InfillPFParticleLabel")),
-    fTruthLabel      (p.get<std::string> ("TruthLabel"))
+    fRealPFParticleLabel    (p.get<std::string> ("RealPFParticleLabel")),
+    fInfillPFParticleLabel  (p.get<std::string> ("InfillPFParticleLabel")),
+    fTruthLabel             (p.get<std::string> ("TruthLabel")),
+    fPerfectTrackLabel      (p.get<std::string> ("PerfectTrackLabel")),
+    fRealTrackLabel         (p.get<std::string> ("RealTrackLabel")),
+    fInfillTrackLabel       (p.get<std::string> ("InfillTrackLabel"))
 {
   consumes<std::vector<anab::ParticleID>>(fPerfectParticleIDLabel);
   consumes<std::vector<anab::ParticleID>>(fRealParticleIDLabel);
@@ -131,6 +142,10 @@ Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
   consumes<std::vector<recob::PFParticle>>(fPerfectPFParticleLabel);
   consumes<std::vector<recob::PFParticle>>(fRealPFParticleLabel);
   consumes<std::vector<recob::PFParticle>>(fInfillPFParticleLabel);
+
+  consumes<std::vector<recob::Track>>(fPerfectTrackLabel);
+  consumes<std::vector<recob::Track>>(fRealTrackLabel);
+  consumes<std::vector<recob::Track>>(fInfillTrackLabel);
 
   art::ServiceHandle<art::TFileService> tfs;
 
@@ -157,6 +172,9 @@ Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
   fTreePID->Branch("TrueNumParticles", &fTrueNumParticles, "truenumparticles/I");
 
   fTreePFParticle = tfs->make<TTree>("InfillAnaTreePFParticle", "InfillAnaTreePFParticle");
+  fTreePFParticle->Branch("Run", &fRun, "run/I");
+  fTreePFParticle->Branch("SubRun", &fSubRun, "subrun/I");
+  fTreePFParticle->Branch("EventNum", &fEventNum, "eventnum/I");
   fTreePFParticle->Branch("PerfectPdgs", &fPerfectPdgs);
   fTreePFParticle->Branch("RealPdgs", &fRealPdgs);
   fTreePFParticle->Branch("InfillPdgs", &fInfillPdgs);
@@ -166,6 +184,14 @@ Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
   fTreePFParticle->Branch("PerfectNPFParticles", &fPerfectNPFParticles, "perfectnpfparticles/I");
   fTreePFParticle->Branch("RealNPFParticles", &fRealNPFParticles, "realnpfparticles/I");
   fTreePFParticle->Branch("InfillNPFParticles", &fInfillNPFParticles, "infillnpfparticles/I");
+
+  fTreeTrack = tfs->make<TTree>("InfillAnaTreeTrack", "InfillAnaTreeTrack");
+  fTreeTrack->Branch("Run", &fRun, "run/I");
+  fTreeTrack->Branch("SubRun", &fSubRun, "subrun/I");
+  fTreeTrack->Branch("EventNum", &fEventNum, "eventnum/I");
+  fTreeTrack->Branch("PerfectLengths", &fPerfectLengths);
+  fTreeTrack->Branch("RealLengths", &fRealLengths);
+  fTreeTrack->Branch("InfillLengths", &fInfillLengths);
 }
 
 void Infill::InfillAnaTree::analyze(art::Event const& e)
@@ -278,6 +304,23 @@ void Infill::InfillAnaTree::analyze(art::Event const& e)
   fInfillNPFParticles = PFParticlesInfill->size();
 
   fTreePFParticle->Fill();
+
+  // Dump recob::Track data
+  const auto TracksPerfect = e.getValidHandle<std::vector<recob::Track>>(fPerfectTrackLabel);
+  const auto TracksReal = e.getValidHandle<std::vector<recob::Track>>(fRealTrackLabel);
+  const auto TracksInfill = e.getValidHandle<std::vector<recob::Track>>(fInfillTrackLabel);
+
+  for (auto track : *TracksPerfect) {
+    fPerfectLengths.push_back(track.Length());
+  }
+  for (auto track : *TracksReal) {
+    fRealLengths.push_back(track.Length());
+  }
+  for (auto track : *TracksInfill) {
+    fInfillLengths.push_back(track.Length());
+  }
+
+  fTreeTrack->Fill();
 }
 
 void Infill::InfillAnaTree::beginJob()
