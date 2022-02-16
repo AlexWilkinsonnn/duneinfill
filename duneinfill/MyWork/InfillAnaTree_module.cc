@@ -117,6 +117,41 @@ Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
   consumes<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChPerfect"));
   consumes<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChnov2019"));
   consumes<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChnov2019Infill"));
+
+  art::ServiceHandle<art::TFileService> tfs;
+
+  fTreePID = tfs->make<TTree>("InfillAnaTree", "InfillAnaTree");
+  fTreePID->Branch("Run", &fRun, "run/I");
+  fTreePID->Branch("SubRun", &fSubRun, "subrun/I");
+  fTreePID->Branch("EventNum", &fEventNum, "eventnum/I");
+  fTreePID->Branch("PerfectPionChi2s", &fPerfectPionChi2s);
+  fTreePID->Branch("PerfectMuonChi2s", &fPerfectMuonChi2s);
+  fTreePID->Branch("PerfectKaonChi2s", &fPerfectKaonChi2s);
+  fTreePID->Branch("PerfectProtonChi2s", &fPerfectProtonChi2s);
+  fTreePID->Branch("RealPionChi2s", &fRealPionChi2s);
+  fTreePID->Branch("RealMuonChi2s", &fRealMuonChi2s);
+  fTreePID->Branch("RealKaonChi2s", &fRealKaonChi2s);
+  fTreePID->Branch("RealProtonChi2s", &fRealProtonChi2s);
+  fTreePID->Branch("InfillPionChi2s", &fInfillPionChi2s);
+  fTreePID->Branch("InfillMuonChi2s", &fInfillMuonChi2s);
+  fTreePID->Branch("InfillKaonChi2s", &fInfillKaonChi2s);
+  fTreePID->Branch("InfillProtonChi2s", &fInfillProtonChi2s);
+  fTreePID->Branch("PerfectNumPIDs", &fPerfectNumPIDs, "perfectnumpids/I");
+  fTreePID->Branch("RealNumPIDs", &fRealNumPIDs, "realnumpids/I");
+  fTreePID->Branch("InfillNumPIDs", &fInfillNumPIDs, "infillnumpids/I");
+  fTreePID->Branch("TrueParticles", &fTrueParticles);
+  fTreePID->Branch("TrueNumParticles", &fTrueNumParticles, "truenumparticles/I");
+
+  fTreePFParticle = tfs->make<TTree>("InfillAnaTreePFParticle", "InfillAnaTreePFParticle");
+  fTreePFParticle->Branch("PerfectPdgs", &fPerfectPdgs);
+  fTreePFParticle->Branch("RealPdgs", &fRealPdgs);
+  fTreePFParticle->Branch("InfillPdgs", &fInfillPdgs);
+  fTreePFParticle->Branch("PerfectNDaughters", &fPerfectNDaughters);
+  fTreePFParticle->Branch("RealNDaughters", &fRealNDaughters);
+  fTreePFParticle->Branch("InfillNDaughters", &fInfillNDaughters);
+  fTreePFParticle->Branch("PerfectNPFParticles", &fPerfectNPFParticles, "perfectnpfparticles/I");
+  fTreePFParticle->Branch("RealNPFParticles", &fRealNPFParticles, "realnpfparticles/I");
+  fTreePFParticle->Branch("InfillNPFParticles", &fInfillNPFParticles, "infillnpfparticles/I");
 }
 
 void Infill::InfillAnaTree::analyze(art::Event const& e)
@@ -234,41 +269,6 @@ void Infill::InfillAnaTree::analyze(art::Event const& e)
 void Infill::InfillAnaTree::beginJob()
 {
   fGeom = art::ServiceHandle<geo::Geometry>()->provider();
-  
-  art::ServiceHandle<art::TFileService> tfs;
-
-  fTreePID = tfs->make<TTree>("InfillAnaTree", "InfillAnaTree");
-  fTreePID->Branch("Run", &fRun, "run/I");
-  fTreePID->Branch("SubRun", &fSubRun, "subrun/I");
-  fTreePID->Branch("EventNum", &fEventNum, "eventnum/I");
-  fTreePID->Branch("PerfectPionChi2s", &fPerfectPionChi2s);
-  fTreePID->Branch("PerfectMuonChi2s", &fPerfectMuonChi2s);
-  fTreePID->Branch("PerfectKaonChi2s", &fPerfectKaonChi2s);
-  fTreePID->Branch("PerfectProtonChi2s", &fPerfectProtonChi2s);
-  fTreePID->Branch("RealPionChi2s", &fRealPionChi2s);
-  fTreePID->Branch("RealMuonChi2s", &fRealMuonChi2s);
-  fTreePID->Branch("RealKaonChi2s", &fRealKaonChi2s);
-  fTreePID->Branch("RealProtonChi2s", &fRealProtonChi2s);
-  fTreePID->Branch("InfillPionChi2s", &fInfillPionChi2s);
-  fTreePID->Branch("InfillMuonChi2s", &fInfillMuonChi2s);
-  fTreePID->Branch("InfillKaonChi2s", &fInfillKaonChi2s);
-  fTreePID->Branch("InfillProtonChi2s", &fInfillProtonChi2s);
-  fTreePID->Branch("PerfectNumPIDs", &fPerfectNumPIDs, "perfectnumpids/I");
-  fTreePID->Branch("RealNumPIDs", &fRealNumPIDs, "realnumpids/I");
-  fTreePID->Branch("InfillNumPIDs", &fInfillNumPIDs, "infillnumpids/I");
-  fTreePID->Branch("TrueParticles", &fTrueParticles);
-  fTreePID->Branch("TrueNumParticles", &fTrueNumParticles, "truenumparticles/I");
-
-  fTreePFParticle = tfs->make<TTree>("InfillAnaTreePFParticle", "InfillAnaTreePFParticle");
-  fTreePFParticle->Branch("PerfectPdgs", &fPerfectPdgs);
-  fTreePFParticle->Branch("RealPdgs", &fRealPdgs);
-  fTreePFParticle->Branch("InfillPdgs", &fInfillPdgs);
-  fTreePFParticle->Branch("PerfectNDaughters", &fPerfectNDaughters);
-  fTreePFParticle->Branch("RealNDaughters", &fRealNDaughters);
-  fTreePFParticle->Branch("InfillNDaughters", &fInfillNDaughters);
-  fTreePFParticle->Branch("PerfectNPFParticles", &fPerfectNPFParticles, "perfectnpfparticles/I");
-  fTreePFParticle->Branch("RealNPFParticles", &fRealNPFParticles, "realnpfparticles/I");
-  fTreePFParticle->Branch("InfillNPFParticles", &fInfillNPFParticles, "infillnpfparticles/I");
 }
 
 void Infill::InfillAnaTree::endJob()
