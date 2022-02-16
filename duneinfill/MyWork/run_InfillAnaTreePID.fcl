@@ -1,0 +1,28 @@
+#include "services_dune.fcl"
+#include "InfillAnaTreePIDConfig.fcl"
+
+process_name: InfillAnaTreePID
+
+source:
+{
+  module_type: RootInput
+  maxEvents:   -1
+}
+
+services:
+{
+  @table::protodune_services
+  TFileService: { fileName: "infill_ana_pid.root" }
+}
+
+physics:
+{
+  analyzers:
+  {
+    infillanapid: @local::InfillAnaTreePID
+  }
+  path0:      [ infillanapid ]
+  end_paths:  [ path0 ]
+}
+
+services.Geometry: @local::protodune_geo
