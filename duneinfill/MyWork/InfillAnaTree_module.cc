@@ -68,6 +68,13 @@ public:
 private:
   const geo::GeometryCore* fGeom;
 
+  std::string fPerfectParticleIDLabel;
+  std::string fRealParticleIDLabel;
+  std::string fInfillParticleIDLabel;
+  std::string fPerfectPFParticleLabel;
+  std::string fRealPFParticleLabel;
+  std::string fInfillPFParticleLabel;
+  std::string fTruthLabel;
   
   TTree*              fTreePID;
   std::vector<double> fPerfectMuonChi2s;
@@ -106,17 +113,24 @@ private:
 
 
 Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
-  : EDAnalyzer{p}  // ,
+  : EDAnalyzer{p},
+    fPerfectParticleIDLabel (p.get<std::string> ("PerfectParticleIDLabel")),
+    fRealParticleIDLabel (p.get<std::string> ("RealParticleIDLabel")),
+    fInfillParticleIDLabel (p.get<std::string> ("InfillParticleIDLabel")),
+    fPerfectPFParticleLabel (p.get<std::string> ("PerfectPFParticleLabel")),
+    fRealPFParticleLabel (p.get<std::string> ("RealPFParticleLabel")),
+    fInfillPFParticleLabel (p.get<std::string> ("InfillPFParticleLabel")),
+    fTruthLabel      (p.get<std::string> ("TruthLabel"))
 {
-  consumes<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChPerfect"));
-  consumes<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019"));
-  consumes<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019Infill"));
+  consumes<std::vector<anab::ParticleID>>(fPerfectParticleIDLabel);
+  consumes<std::vector<anab::ParticleID>>(fRealParticleIDLabel);
+  consumes<std::vector<anab::ParticleID>>(fInfillParticleIDLabel);
 
-  consumes<std::vector<simb::MCTruth>>(art::InputTag("generator", "", "SinglesGen"));
+  consumes<std::vector<simb::MCTruth>>(fTruthLabel);
 
-  consumes<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChPerfect"));
-  consumes<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChnov2019"));
-  consumes<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChnov2019Infill"));
+  consumes<std::vector<recob::PFParticle>>(fPerfectPFParticleLabel);
+  consumes<std::vector<recob::PFParticle>>(fRealPFParticleLabel);
+  consumes<std::vector<recob::PFParticle>>(fInfillPFParticleLabel);
 
   art::ServiceHandle<art::TFileService> tfs;
 
@@ -164,9 +178,9 @@ void Infill::InfillAnaTree::analyze(art::Event const& e)
   fEventNum = e.id().event();
 
   // Dump anab::ParticleID data
-  const auto particlePIDsPerfect = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChPerfect"));
-  const auto particlePIDsReal = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019"));
-  const auto particlePIDsInfill = e.getValidHandle<std::vector<anab::ParticleID>>(art::InputTag("pandorapid", "", "RecoChnov2019Infill"));
+  const auto particlePIDsPerfect = e.getValidHandle<std::vector<anab::ParticleID>>(fPerfectParticleIDLabel);
+  const auto particlePIDsReal = e.getValidHandle<std::vector<anab::ParticleID>>(fRealParticleIDLabel);
+  const auto particlePIDsInfill = e.getValidHandle<std::vector<anab::ParticleID>>(fInfillParticleIDLabel);
 
   for (auto pID : *particlePIDsPerfect) { 
     for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
@@ -229,7 +243,7 @@ void Infill::InfillAnaTree::analyze(art::Event const& e)
   fRealNumPIDs = particlePIDsReal->size();
   fInfillNumPIDs = particlePIDsInfill->size();
 
-  const auto trueGenParticles = e.getValidHandle<std::vector<simb::MCTruth>>(art::InputTag("generator", "", "SinglesGen"));
+  const auto trueGenParticles = e.getValidHandle<std::vector<simb::MCTruth>>(fTruthLabel);
 
   for (auto truth : *trueGenParticles) {
     fTrueNumParticles += truth.NParticles();
@@ -242,9 +256,9 @@ void Infill::InfillAnaTree::analyze(art::Event const& e)
   fTreePID->Fill();
 
   // Dump recob::PFparticle data
-  const auto PFParticlesPerfect = e.getValidHandle<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChPerfect"));
-  const auto PFParticlesReal = e.getValidHandle<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChnov2019"));
-  const auto PFParticlesInfill = e.getValidHandle<std::vector<recob::PFParticle>>(art::InputTag("pandora", "", "RecoChnov2019Infill"));
+  const auto PFParticlesPerfect = e.getValidHandle<std::vector<recob::PFParticle>>(fPerfectPFParticleLabel);
+  const auto PFParticlesReal = e.getValidHandle<std::vector<recob::PFParticle>>(fRealPFParticleLabel);
+  const auto PFParticlesInfill = e.getValidHandle<std::vector<recob::PFParticle>>(fInfillPFParticleLabel);
 
   for (auto PFParticle : *PFParticlesPerfect) {
     fPerfectPdgs.push_back(PFParticle.PdgCode());

@@ -3,6 +3,16 @@ BEGIN_PROLOG
 InfillAnaTree:
 {
   module_type: "InfillAnaTree"
+
+  PerfectParticleIDLabel: "pandorapid::RecoChPerfect"
+  RealParticleIDLabel:    "pandorapid::RecoChnov2019"
+  InfillParticleIDLabel:  "pandorapid::RecoChnov2019Infill"
+
+  PerfectPFParticleLabel: "pandora::RecoChPerfect"
+  RealPFParticleLabel:    "pandora::RecoChnov2019"
+  InfillPFParticleLabel:  "pandora::RecoChnov2019Infill"
+
+  TruthLabel: "generator::SinglesGen"
 }
 
 END_PROLOG

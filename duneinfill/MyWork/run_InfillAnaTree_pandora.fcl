@@ -1,0 +1,36 @@
+#include "services_dune.fcl"
+#include "InfillAnaTreeConfig.fcl"
+
+process_name: InfillAnaTree
+
+source:
+{
+  module_type: RootInput
+  maxEvents:   -1
+}
+
+services:
+{
+  @table::protodune_services
+  TFileService: { fileName: "infill_ana.root" }
+}
+
+physics:
+{
+  analyzers:
+  {
+    infillana: @local::InfillAnaTree
+  }
+  path0:      [ infillana ]
+  end_paths:  [ path0 ]
+}
+
+services.Geometry: @local::protodune_geo
+
+// Use 'pandora' labelled products
+physics.analyzers.infillana.PerfectParticleIDLabel: "pandorapid::RecoChPerfect"
+physics.analyzers.infillana.RealParticleIDLabel:    "pandorapid::RecoChnov2019"
+physics.analyzers.infillana.InfillParticleIDLabel:  "pandorapid::RecoChnov2019Infill"
+physics.analyzers.infillana.PerfectPFParticleLabel: "pandora::RecoChPerfect"
+physics.analyzers.infillana.RealPFParticleLabel:    "pandora::RecoChnov2019"
+physics.analyzers.infillana.InfillPFParticleLabel:  "pandora::RecoChnov2019Infill"
