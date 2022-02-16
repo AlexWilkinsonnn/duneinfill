@@ -40,3 +40,10 @@ physics.analyzers.infillana.InfillTrackLabel:       "pandoraTrack::RecoChnov2019
 physics.analyzers.infillana.PerfectShowerLabel:     "pandoraShower::RecoChPerfect"
 physics.analyzers.infillana.RealShowerLabel:        "pandoraShower::RecoChnov2019"
 physics.analyzers.infillana.InfillShowerLabel:      "pandoraShower::RecoChnov2019Infill"
+
+// 'pandora' label has all the relevant products
+physics.analyzers.infillana.DumpParticleID: true
+physics.analyzers.infillana.DumpPFParticle: true
+physics.analyzers.infillana.DumpTrack:      true
+physics.analyzers.infillana.DumpShower:     true
+

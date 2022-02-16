@@ -68,6 +68,11 @@ public:
 private:
   const geo::GeometryCore* fGeom;
 
+  bool fDumpParticleID;
+  bool fDumpPFParticle;
+  bool fDumpTrack;
+  bool fDumpShower;
+
   std::string fPerfectParticleIDLabel;
   std::string fRealParticleIDLabel;
   std::string fInfillParticleIDLabel;
@@ -133,6 +138,10 @@ private:
 
 Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
   : EDAnalyzer{p},
+    fDumpParticleID         (p.get<bool> ("DumpParticleID")),
+    fDumpPFParticle         (p.get<bool> ("DumpPFParticle")),
+    fDumpTrack              (p.get<bool> ("DumpTrack")),
+    fDumpShower             (p.get<bool> ("DumpShower")),
     fPerfectParticleIDLabel (p.get<std::string> ("PerfectParticleIDLabel")),
     fRealParticleIDLabel    (p.get<std::string> ("RealParticleIDLabel")),
     fInfillParticleIDLabel  (p.get<std::string> ("InfillParticleIDLabel")),
@@ -147,80 +156,88 @@ Infill::InfillAnaTree::InfillAnaTree(fhicl::ParameterSet const& p)
     fRealShowerLabel        (p.get<std::string> ("RealShowerLabel")),
     fInfillShowerLabel      (p.get<std::string> ("InfillShowerLabel"))
 {
-  consumes<std::vector<anab::ParticleID>>(fPerfectParticleIDLabel);
-  consumes<std::vector<anab::ParticleID>>(fRealParticleIDLabel);
-  consumes<std::vector<anab::ParticleID>>(fInfillParticleIDLabel);
-
-  consumes<std::vector<simb::MCTruth>>(fTruthLabel);
-
-  consumes<std::vector<recob::PFParticle>>(fPerfectPFParticleLabel);
-  consumes<std::vector<recob::PFParticle>>(fRealPFParticleLabel);
-  consumes<std::vector<recob::PFParticle>>(fInfillPFParticleLabel);
-
-  consumes<std::vector<recob::Track>>(fPerfectTrackLabel);
-  consumes<std::vector<recob::Track>>(fRealTrackLabel);
-  consumes<std::vector<recob::Track>>(fInfillTrackLabel);
-
-  consumes<std::vector<recob::Shower>>(fPerfectShowerLabel);
-  consumes<std::vector<recob::Shower>>(fRealShowerLabel);
-  consumes<std::vector<recob::Shower>>(fInfillShowerLabel);
-
   art::ServiceHandle<art::TFileService> tfs;
 
-  fTreePID = tfs->make<TTree>("InfillAnaTree", "InfillAnaTree");
-  fTreePID->Branch("Run", &fRun, "run/I");
-  fTreePID->Branch("SubRun", &fSubRun, "subrun/I");
-  fTreePID->Branch("EventNum", &fEventNum, "eventnum/I");
-  fTreePID->Branch("PerfectPionChi2s", &fPerfectPionChi2s);
-  fTreePID->Branch("PerfectMuonChi2s", &fPerfectMuonChi2s);
-  fTreePID->Branch("PerfectKaonChi2s", &fPerfectKaonChi2s);
-  fTreePID->Branch("PerfectProtonChi2s", &fPerfectProtonChi2s);
-  fTreePID->Branch("RealPionChi2s", &fRealPionChi2s);
-  fTreePID->Branch("RealMuonChi2s", &fRealMuonChi2s);
-  fTreePID->Branch("RealKaonChi2s", &fRealKaonChi2s);
-  fTreePID->Branch("RealProtonChi2s", &fRealProtonChi2s);
-  fTreePID->Branch("InfillPionChi2s", &fInfillPionChi2s);
-  fTreePID->Branch("InfillMuonChi2s", &fInfillMuonChi2s);
-  fTreePID->Branch("InfillKaonChi2s", &fInfillKaonChi2s);
-  fTreePID->Branch("InfillProtonChi2s", &fInfillProtonChi2s);
-  fTreePID->Branch("PerfectNumPIDs", &fPerfectNumPIDs, "perfectnumpids/I");
-  fTreePID->Branch("RealNumPIDs", &fRealNumPIDs, "realnumpids/I");
-  fTreePID->Branch("InfillNumPIDs", &fInfillNumPIDs, "infillnumpids/I");
-  fTreePID->Branch("TrueParticles", &fTrueParticles);
-  fTreePID->Branch("TrueNumParticles", &fTrueNumParticles, "truenumparticles/I");
+  if (fDumpParticleID) {
+    consumes<std::vector<anab::ParticleID>>(fPerfectParticleIDLabel);
+    consumes<std::vector<anab::ParticleID>>(fRealParticleIDLabel);
+    consumes<std::vector<anab::ParticleID>>(fInfillParticleIDLabel);
 
-  fTreePFParticle = tfs->make<TTree>("InfillAnaTreePFParticle", "InfillAnaTreePFParticle");
-  fTreePFParticle->Branch("Run", &fRun, "run/I");
-  fTreePFParticle->Branch("SubRun", &fSubRun, "subrun/I");
-  fTreePFParticle->Branch("EventNum", &fEventNum, "eventnum/I");
-  fTreePFParticle->Branch("PerfectPdgs", &fPerfectPdgs);
-  fTreePFParticle->Branch("RealPdgs", &fRealPdgs);
-  fTreePFParticle->Branch("InfillPdgs", &fInfillPdgs);
-  fTreePFParticle->Branch("PerfectNDaughters", &fPerfectNDaughters);
-  fTreePFParticle->Branch("RealNDaughters", &fRealNDaughters);
-  fTreePFParticle->Branch("InfillNDaughters", &fInfillNDaughters);
-  fTreePFParticle->Branch("PerfectNPFParticles", &fPerfectNPFParticles, "perfectnpfparticles/I");
-  fTreePFParticle->Branch("RealNPFParticles", &fRealNPFParticles, "realnpfparticles/I");
-  fTreePFParticle->Branch("InfillNPFParticles", &fInfillNPFParticles, "infillnpfparticles/I");
+    consumes<std::vector<simb::MCTruth>>(fTruthLabel);
 
-  fTreeTrack = tfs->make<TTree>("InfillAnaTreeTrack", "InfillAnaTreeTrack");
-  fTreeTrack->Branch("Run", &fRun, "run/I");
-  fTreeTrack->Branch("SubRun", &fSubRun, "subrun/I");
-  fTreeTrack->Branch("EventNum", &fEventNum, "eventnum/I");
-  fTreeTrack->Branch("PerfectTrackLengths", &fPerfectTrackLengths);
-  fTreeTrack->Branch("RealTrackLengths", &fRealTrackLengths);
-  fTreeTrack->Branch("InfillTrackLengths", &fInfillTrackLengths);
+    fTreePID = tfs->make<TTree>("InfillAnaTree", "InfillAnaTree");
+    fTreePID->Branch("Run", &fRun, "run/I");
+    fTreePID->Branch("SubRun", &fSubRun, "subrun/I");
+    fTreePID->Branch("EventNum", &fEventNum, "eventnum/I");
+    fTreePID->Branch("PerfectPionChi2s", &fPerfectPionChi2s);
+    fTreePID->Branch("PerfectMuonChi2s", &fPerfectMuonChi2s);
+    fTreePID->Branch("PerfectKaonChi2s", &fPerfectKaonChi2s);
+    fTreePID->Branch("PerfectProtonChi2s", &fPerfectProtonChi2s);
+    fTreePID->Branch("RealPionChi2s", &fRealPionChi2s);
+    fTreePID->Branch("RealMuonChi2s", &fRealMuonChi2s);
+    fTreePID->Branch("RealKaonChi2s", &fRealKaonChi2s);
+    fTreePID->Branch("RealProtonChi2s", &fRealProtonChi2s);
+    fTreePID->Branch("InfillPionChi2s", &fInfillPionChi2s);
+    fTreePID->Branch("InfillMuonChi2s", &fInfillMuonChi2s);
+    fTreePID->Branch("InfillKaonChi2s", &fInfillKaonChi2s);
+    fTreePID->Branch("InfillProtonChi2s", &fInfillProtonChi2s);
+    fTreePID->Branch("PerfectNumPIDs", &fPerfectNumPIDs, "perfectnumpids/I");
+    fTreePID->Branch("RealNumPIDs", &fRealNumPIDs, "realnumpids/I");
+    fTreePID->Branch("InfillNumPIDs", &fInfillNumPIDs, "infillnumpids/I");
+    fTreePID->Branch("TrueParticles", &fTrueParticles);
+    fTreePID->Branch("TrueNumParticles", &fTrueNumParticles, "truenumparticles/I");
+  }
 
-  fTreeShower = tfs->make<TTree>("InfillAnaTreeShower", "InfillAnaTreeShower");
-  fTreeShower->Branch("Run", &fRun, "run/I");
-  fTreeShower->Branch("SubRun", &fSubRun, "subrun/I");
-  fTreeShower->Branch("EventNum", &fEventNum, "eventnum/I");
-  fTreeShower->Branch("PerfectShowerLengths", &fPerfectShowerLengths);
-  fTreeShower->Branch("RealShowerLengths", &fRealShowerLengths);
-  fTreeShower->Branch("InfillShowerLengths", &fInfillShowerLengths);
-  fTreeShower->Branch("PerfectShowerOpenAngles", & fPerfectShowerOpenAngles);
-  fTreeShower->Branch("RealShowerOpenAngles", & fRealShowerOpenAngles);
-  fTreeShower->Branch("InfillShowerOpenAngles", & fInfillShowerOpenAngles);
+  if (fDumpPFParticle) {
+    consumes<std::vector<recob::PFParticle>>(fPerfectPFParticleLabel);
+    consumes<std::vector<recob::PFParticle>>(fRealPFParticleLabel);
+    consumes<std::vector<recob::PFParticle>>(fInfillPFParticleLabel);
+
+    fTreePFParticle = tfs->make<TTree>("InfillAnaTreePFParticle", "InfillAnaTreePFParticle");
+    fTreePFParticle->Branch("Run", &fRun, "run/I");
+    fTreePFParticle->Branch("SubRun", &fSubRun, "subrun/I");
+    fTreePFParticle->Branch("EventNum", &fEventNum, "eventnum/I");
+    fTreePFParticle->Branch("PerfectPdgs", &fPerfectPdgs);
+    fTreePFParticle->Branch("RealPdgs", &fRealPdgs);
+    fTreePFParticle->Branch("InfillPdgs", &fInfillPdgs);
+    fTreePFParticle->Branch("PerfectNDaughters", &fPerfectNDaughters);
+    fTreePFParticle->Branch("RealNDaughters", &fRealNDaughters);
+    fTreePFParticle->Branch("InfillNDaughters", &fInfillNDaughters);
+    fTreePFParticle->Branch("PerfectNPFParticles", &fPerfectNPFParticles, "perfectnpfparticles/I");
+    fTreePFParticle->Branch("RealNPFParticles", &fRealNPFParticles, "realnpfparticles/I");
+    fTreePFParticle->Branch("InfillNPFParticles", &fInfillNPFParticles, "infillnpfparticles/I");
+  }
+
+  if (fDumpTrack) {
+    consumes<std::vector<recob::Track>>(fPerfectTrackLabel);
+    consumes<std::vector<recob::Track>>(fRealTrackLabel);
+    consumes<std::vector<recob::Track>>(fInfillTrackLabel);
+
+    fTreeTrack = tfs->make<TTree>("InfillAnaTreeTrack", "InfillAnaTreeTrack");
+    fTreeTrack->Branch("Run", &fRun, "run/I");
+    fTreeTrack->Branch("SubRun", &fSubRun, "subrun/I");
+    fTreeTrack->Branch("EventNum", &fEventNum, "eventnum/I");
+    fTreeTrack->Branch("PerfectTrackLengths", &fPerfectTrackLengths);
+    fTreeTrack->Branch("RealTrackLengths", &fRealTrackLengths);
+    fTreeTrack->Branch("InfillTrackLengths", &fInfillTrackLengths);
+  }
+
+  if (fDumpShower) {
+    consumes<std::vector<recob::Shower>>(fPerfectShowerLabel);
+    consumes<std::vector<recob::Shower>>(fRealShowerLabel);
+    consumes<std::vector<recob::Shower>>(fInfillShowerLabel);
+
+    fTreeShower = tfs->make<TTree>("InfillAnaTreeShower", "InfillAnaTreeShower");
+    fTreeShower->Branch("Run", &fRun, "run/I");
+    fTreeShower->Branch("SubRun", &fSubRun, "subrun/I");
+    fTreeShower->Branch("EventNum", &fEventNum, "eventnum/I");
+    fTreeShower->Branch("PerfectShowerLengths", &fPerfectShowerLengths);
+    fTreeShower->Branch("RealShowerLengths", &fRealShowerLengths);
+    fTreeShower->Branch("InfillShowerLengths", &fInfillShowerLengths);
+    fTreeShower->Branch("PerfectShowerOpenAngles", & fPerfectShowerOpenAngles);
+    fTreeShower->Branch("RealShowerOpenAngles", & fRealShowerOpenAngles);
+    fTreeShower->Branch("InfillShowerOpenAngles", & fInfillShowerOpenAngles);
+  }
 }
 
 void Infill::InfillAnaTree::analyze(art::Event const& e)
@@ -233,143 +250,149 @@ void Infill::InfillAnaTree::analyze(art::Event const& e)
   fEventNum = e.id().event();
 
   // Dump anab::ParticleID data
-  const auto particlePIDsPerfect = e.getValidHandle<std::vector<anab::ParticleID>>(fPerfectParticleIDLabel);
-  const auto particlePIDsReal = e.getValidHandle<std::vector<anab::ParticleID>>(fRealParticleIDLabel);
-  const auto particlePIDsInfill = e.getValidHandle<std::vector<anab::ParticleID>>(fInfillParticleIDLabel);
+  if (fDumpParticleID) {
+    const auto particlePIDsPerfect = e.getValidHandle<std::vector<anab::ParticleID>>(fPerfectParticleIDLabel);
+    const auto particlePIDsReal = e.getValidHandle<std::vector<anab::ParticleID>>(fRealParticleIDLabel);
+    const auto particlePIDsInfill = e.getValidHandle<std::vector<anab::ParticleID>>(fInfillParticleIDLabel);
 
-  for (auto pID : *particlePIDsPerfect) { 
-    for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
-      if (pIDAlgScore.fAlgName == "Chi2") {
-        if (pIDAlgScore.fAssumedPdg == 13) {
-          fPerfectMuonChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 321) {
-          fPerfectKaonChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 211) {
-          fPerfectPionChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 2212) {
-          fPerfectProtonChi2s.push_back(pIDAlgScore.fValue);
+    for (auto pID : *particlePIDsPerfect) { 
+      for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
+        if (pIDAlgScore.fAlgName == "Chi2") {
+          if (pIDAlgScore.fAssumedPdg == 13) {
+            fPerfectMuonChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 321) {
+            fPerfectKaonChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 211) {
+            fPerfectPionChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 2212) {
+            fPerfectProtonChi2s.push_back(pIDAlgScore.fValue);
+          }
         }
       }
     }
-  }
-
-  for (auto pID : *particlePIDsReal) { 
-    for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
-      if (pIDAlgScore.fAlgName == "Chi2") {
-        if (pIDAlgScore.fAssumedPdg == 13) {
-          fRealMuonChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 321) {
-          fRealKaonChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 211) {
-          fRealPionChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 2212) {
-          fRealProtonChi2s.push_back(pIDAlgScore.fValue);
-        }
-      }
-    }
-  }
-
-  for (auto pID : *particlePIDsInfill) { 
-    for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
-      if (pIDAlgScore.fAlgName == "Chi2") {
-        if (pIDAlgScore.fAssumedPdg == 13) {
-          fInfillMuonChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 321) {
-          fInfillKaonChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 211) {
-          fInfillPionChi2s.push_back(pIDAlgScore.fValue);
-        }
-        else if (pIDAlgScore.fAssumedPdg == 2212) {
-          fInfillProtonChi2s.push_back(pIDAlgScore.fValue);
+    for (auto pID : *particlePIDsReal) { 
+      for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
+        if (pIDAlgScore.fAlgName == "Chi2") {
+          if (pIDAlgScore.fAssumedPdg == 13) {
+            fRealMuonChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 321) {
+            fRealKaonChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 211) {
+            fRealPionChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 2212) {
+            fRealProtonChi2s.push_back(pIDAlgScore.fValue);
+          }
         }
       }
     }
-  }
-
-  fPerfectNumPIDs = particlePIDsPerfect->size();
-  fRealNumPIDs = particlePIDsReal->size();
-  fInfillNumPIDs = particlePIDsInfill->size();
-
-  const auto trueGenParticles = e.getValidHandle<std::vector<simb::MCTruth>>(fTruthLabel);
-
-  for (auto truth : *trueGenParticles) {
-    fTrueNumParticles += truth.NParticles();
-    for (int i = 0; i < truth.NParticles(); i++) {
-      const simb::MCParticle truthParticle = truth.GetParticle(i);
-      fTrueParticles.push_back(truthParticle.PdgCode());
+    for (auto pID : *particlePIDsInfill) { 
+      for (auto pIDAlgScore : pID.ParticleIDAlgScores()) {
+        if (pIDAlgScore.fAlgName == "Chi2") {
+          if (pIDAlgScore.fAssumedPdg == 13) {
+            fInfillMuonChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 321) {
+            fInfillKaonChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 211) {
+            fInfillPionChi2s.push_back(pIDAlgScore.fValue);
+          }
+          else if (pIDAlgScore.fAssumedPdg == 2212) {
+            fInfillProtonChi2s.push_back(pIDAlgScore.fValue);
+          }
+        }
+      }
     }
-  }
 
-  fTreePID->Fill();
+    fPerfectNumPIDs = particlePIDsPerfect->size();
+    fRealNumPIDs = particlePIDsReal->size();
+    fInfillNumPIDs = particlePIDsInfill->size();
+
+    const auto trueGenParticles = e.getValidHandle<std::vector<simb::MCTruth>>(fTruthLabel);
+
+    for (auto truth : *trueGenParticles) {
+      fTrueNumParticles += truth.NParticles();
+      for (int i = 0; i < truth.NParticles(); i++) {
+        const simb::MCParticle truthParticle = truth.GetParticle(i);
+        fTrueParticles.push_back(truthParticle.PdgCode());
+      }
+    }
+
+    fTreePID->Fill();
+  }
 
   // Dump recob::PFparticle data
-  const auto PFParticlesPerfect = e.getValidHandle<std::vector<recob::PFParticle>>(fPerfectPFParticleLabel);
-  const auto PFParticlesReal = e.getValidHandle<std::vector<recob::PFParticle>>(fRealPFParticleLabel);
-  const auto PFParticlesInfill = e.getValidHandle<std::vector<recob::PFParticle>>(fInfillPFParticleLabel);
+  if (fDumpPFParticle) {
+    const auto PFParticlesPerfect = e.getValidHandle<std::vector<recob::PFParticle>>(fPerfectPFParticleLabel);
+    const auto PFParticlesReal = e.getValidHandle<std::vector<recob::PFParticle>>(fRealPFParticleLabel);
+    const auto PFParticlesInfill = e.getValidHandle<std::vector<recob::PFParticle>>(fInfillPFParticleLabel);
 
-  for (auto PFParticle : *PFParticlesPerfect) {
-    fPerfectPdgs.push_back(PFParticle.PdgCode());
-    fPerfectNDaughters.push_back(PFParticle.NumDaughters());
+    for (auto PFParticle : *PFParticlesPerfect) {
+      fPerfectPdgs.push_back(PFParticle.PdgCode());
+      fPerfectNDaughters.push_back(PFParticle.NumDaughters());
+    }
+    for (auto PFParticle : *PFParticlesReal) {
+      fRealPdgs.push_back(PFParticle.PdgCode());
+      fRealNDaughters.push_back(PFParticle.NumDaughters());
+    }   
+    for (auto PFParticle : *PFParticlesInfill) {
+      fInfillPdgs.push_back(PFParticle.PdgCode());
+      fInfillNDaughters.push_back(PFParticle.NumDaughters());
+    }
+
+    fPerfectNPFParticles = PFParticlesPerfect->size();
+    fRealNPFParticles = PFParticlesReal->size();
+    fInfillNPFParticles = PFParticlesInfill->size();
+
+    fTreePFParticle->Fill();
   }
-  for (auto PFParticle : *PFParticlesReal) {
-    fRealPdgs.push_back(PFParticle.PdgCode());
-    fRealNDaughters.push_back(PFParticle.NumDaughters());
-  }   
-  for (auto PFParticle : *PFParticlesInfill) {
-    fInfillPdgs.push_back(PFParticle.PdgCode());
-    fInfillNDaughters.push_back(PFParticle.NumDaughters());
-  }
-
-  fPerfectNPFParticles = PFParticlesPerfect->size();
-  fRealNPFParticles = PFParticlesReal->size();
-  fInfillNPFParticles = PFParticlesInfill->size();
-
-  fTreePFParticle->Fill();
 
   // Dump recob::Track data
-  const auto TracksPerfect = e.getValidHandle<std::vector<recob::Track>>(fPerfectTrackLabel);
-  const auto TracksReal = e.getValidHandle<std::vector<recob::Track>>(fRealTrackLabel);
-  const auto TracksInfill = e.getValidHandle<std::vector<recob::Track>>(fInfillTrackLabel);
+  if (fDumpTrack) {
+    const auto TracksPerfect = e.getValidHandle<std::vector<recob::Track>>(fPerfectTrackLabel);
+    const auto TracksReal = e.getValidHandle<std::vector<recob::Track>>(fRealTrackLabel);
+    const auto TracksInfill = e.getValidHandle<std::vector<recob::Track>>(fInfillTrackLabel);
 
-  for (auto track : *TracksPerfect) {
-    fPerfectTrackLengths.push_back(track.Length());
-  }
-  for (auto track : *TracksReal) {
-    fRealTrackLengths.push_back(track.Length());
-  }
-  for (auto track : *TracksInfill) {
-    fInfillTrackLengths.push_back(track.Length());
-  }
+    for (auto track : *TracksPerfect) {
+      fPerfectTrackLengths.push_back(track.Length());
+    }
+    for (auto track : *TracksReal) {
+      fRealTrackLengths.push_back(track.Length());
+    }
+    for (auto track : *TracksInfill) {
+      fInfillTrackLengths.push_back(track.Length());
+    }
 
-  fTreeTrack->Fill();
+    fTreeTrack->Fill();
+  }
 
   // Dump recob::Shower data
-  const auto ShowersPerfect = e.getValidHandle<std::vector<recob::Shower>>(fPerfectShowerLabel);
-  const auto ShowersReal = e.getValidHandle<std::vector<recob::Shower>>(fRealShowerLabel);
-  const auto ShowersInfill = e.getValidHandle<std::vector<recob::Shower>>(fInfillShowerLabel);
+  if (fDumpShower) {
+    const auto ShowersPerfect = e.getValidHandle<std::vector<recob::Shower>>(fPerfectShowerLabel);
+    const auto ShowersReal = e.getValidHandle<std::vector<recob::Shower>>(fRealShowerLabel);
+    const auto ShowersInfill = e.getValidHandle<std::vector<recob::Shower>>(fInfillShowerLabel);
 
-  for (auto shower : *ShowersPerfect) { 
-    fPerfectShowerLengths.push_back(shower.Length());
-    fPerfectShowerOpenAngles.push_back(shower.OpenAngle());
-  }
-  for (auto shower : *ShowersReal) { 
-    fRealShowerLengths.push_back(shower.Length());
-    fRealShowerOpenAngles.push_back(shower.OpenAngle());
-  }
-  for (auto shower : *ShowersInfill) { 
-    fInfillShowerLengths.push_back(shower.Length());
-    fInfillShowerOpenAngles.push_back(shower.OpenAngle());
-  }
+    for (auto shower : *ShowersPerfect) { 
+      fPerfectShowerLengths.push_back(shower.Length());
+      fPerfectShowerOpenAngles.push_back(shower.OpenAngle());
+    }
+    for (auto shower : *ShowersReal) { 
+      fRealShowerLengths.push_back(shower.Length());
+      fRealShowerOpenAngles.push_back(shower.OpenAngle());
+    }
+    for (auto shower : *ShowersInfill) { 
+      fInfillShowerLengths.push_back(shower.Length());
+      fInfillShowerOpenAngles.push_back(shower.OpenAngle());
+    }
 
-  fTreeShower->Fill();  
+    fTreeShower->Fill();
+  }
 }
 
 void Infill::InfillAnaTree::beginJob()

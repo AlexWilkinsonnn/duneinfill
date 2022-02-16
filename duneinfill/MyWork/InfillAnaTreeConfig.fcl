@@ -4,6 +4,11 @@ InfillAnaTree:
 {
   module_type: "InfillAnaTree"
 
+  DumpParticleID: true
+  DumpPFParticle: true
+  DumpTrack:      true
+  DumpShower:     true
+
   PerfectParticleIDLabel: "pandorapid::RecoChPerfect"
   RealParticleIDLabel:    "pandorapid::RecoChnov2019"
   InfillParticleIDLabel:  "pandorapid::RecoChnov2019Infill"
