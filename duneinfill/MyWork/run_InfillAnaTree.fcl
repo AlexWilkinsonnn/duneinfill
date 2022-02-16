@@ -12,14 +12,14 @@ source:
 services:
 {
   @table::protodune_services
-  TFileService: { fileName: "infill_ana_pid.root" }
+  TFileService: { fileName: "infill_ana.root" }
 }
 
 physics:
 {
   analyzers:
   {
-    infillanapid: @local::InfillAnaTree
+    infillana: @local::InfillAnaTree
   }
   path0:      [ infillana ]
   end_paths:  [ path0 ]
