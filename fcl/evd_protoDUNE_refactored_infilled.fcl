@@ -1,0 +1,27 @@
+#include "evd_protoDUNE_noped.fcl"
+
+pdsp_channel_status_perfect: {
+ 
+  # implements IChannelStatusService
+  service_provider: SimpleChannelStatusService
+
+  # list of bad channels:
+  BadChannels:   [ ]
+
+  # list of bad noisy channels:
+  NoisyChannels: [ ]
+
+}
+
+services.DetPedestalService.FixedDetPedestal.PedMeanZ:  900
+services.DetPedestalService.FixedDetPedestal.PedMeanV:  2350
+services.DetPedestalService.FixedDetPedestal.PedMeanU:  2350
+services.ChannelStatusService: @local::pdsp_channel_status_perfect
+services.RawDrawingOptions.RawDataLabels: [ "tpcrawdecoder:daq" ]
+#services.RawDrawingOptions.PedestalOption: 1
+services.RecoDrawingOptions.WireModuleLabels: [ "wclsdatasp:gauss:RecoChnov2019", "wclsdatanfsp:gauss:RecoChPerfect", "wclsdatanfsp:gauss:RecoChnov2019Infill"]
+services.RecoDrawingOptions.HitModuleLabels: [ "gaushit::RecoChnov2019", "gaushit::RecoChPerfect", "gaushit::RecoChnov2019Infill" ] 
+#services.SimulationDrawingOptions.SimChannelLabel: "tpcrawdecoder:simpleSC"
+services.DetectorPropertiesService: @local::protodunesp_detproperties
+services.DetectorPropertiesService.GetHVDriftfromSamweb: false
+services.DetectorPropertiesService.GetReadOutWindowSizefromSamweb: false
