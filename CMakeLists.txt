@@ -45,5 +45,6 @@ include(BuildPlugins)
 
 add_subdirectory(duneinfill)
 add_subdirectory(ups)
+add_subdirectory(fcl)
 
 include(UseCPack)
