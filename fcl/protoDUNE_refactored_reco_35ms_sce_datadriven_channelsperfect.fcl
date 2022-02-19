@@ -2,6 +2,8 @@
 
 #include "protoDUNE_refactored_reco_35ms_sce_datadriven.fcl"
 
+process_name: RecoChPerfect
+
 pdsp_channel_status_perfect: {
  
   # implements IChannelStatusService
@@ -15,7 +17,7 @@ pdsp_channel_status_perfect: {
 
 }
 
-process_name: RecoChPerfect
+physics.producers.wclsdatasp.wcls_main.configs: [ "pgrapher/experiment/pdsp/wcls-sp_perfect.jsonnet" ]
 
 services.ChannelStatusService: @local::pdsp_channel_status_perfect
 
