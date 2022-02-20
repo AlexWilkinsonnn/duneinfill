@@ -1,0 +1,39 @@
+#include "services_dune.fcl"
+#include "InfillAnaTreeConfig.fcl"
+
+process_name: InfillAnaTree
+
+source:
+{
+  module_type: RootInput
+  maxEvents:   -1
+}
+
+services:
+{
+  @table::protodune_services
+  TFileService: { fileName: "infill_ana_pandoracali.root" }
+}
+
+physics:
+{
+  analyzers:
+  {
+    infillana: @local::InfillAnaTree
+  }
+  path0:      [ infillana ]
+  end_paths:  [ path0 ]
+}
+
+services.Geometry: @local::protodune_geo
+
+// Use 'pandora' labelled products
+physics.analyzers.infillana.PerfectParticleIDLabel: "pandoracalipid::RecoChPerfect"
+physics.analyzers.infillana.RealParticleIDLabel:    "pandoracalipid::RecoChnov2019Noisy"
+physics.analyzers.infillana.InfillParticleIDLabel:  "pandoracalipid::RecoChInfill"
+
+// 'pandoracali' label does not have all products
+physics.analyzers.infillana.DumpParticleID: true
+physics.analyzers.infillana.DumpPFParticle: false
+physics.analyzers.infillana.DumpTrack:      false
+physics.analyzers.infillana.DumpShower:     false
