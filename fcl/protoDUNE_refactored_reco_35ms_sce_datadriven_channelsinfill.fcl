@@ -2,7 +2,7 @@
 
 #include "protoDUNE_refactored_reco_35ms_sce_datadriven.fcl"
 
-process_name: RecoChnov2019Infill
+process_name: RecoChInfill
 
 pdsp_channel_status_perfect: {
  

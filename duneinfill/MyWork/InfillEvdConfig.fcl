@@ -15,7 +15,7 @@ InfillEvd:
   RealHitLabel:    "gaushit::RecoChnov2019"
   InfillHitLabel:  "gaushit::RecoChnov2019Infill" 
 
-  PerfectDigitLabel: "tpcrawdecor:daq:DetsimStage1"
+  PerfectDigitLabel: "tpcrawdecoder:daq:DetsimStage1"
   InfillDigitLabel:  "infill::InfillChannelsPD" 
 }
 

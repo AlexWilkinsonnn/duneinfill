@@ -1,7 +1,8 @@
 #include "services_dune.fcl"
 #include "InfillChannelsConfig.fcl"
+#include "channelstatus_pdsp_nov2019badnoisy.fcl"
 
-process_name: InfillChannelsPD
+process_name: InfillChannelsNoisyPD
 
 source:
 {
@@ -12,7 +13,7 @@ source:
 services:
 {
   @table::protodune_services
-  ChannelStatusService: @local::pdsp_channel_status_nov2019
+  ChannelStatusService: @local::pdsp_channel_status_nov2019badnoisy
   TimeTracker:          @local::dune_time_tracker
   MemoryTracker:        @local::dune_memory_tracker
 }
@@ -49,4 +50,4 @@ services.Geometry: @local::protodune_geo
 
 physics.producers.infill.InputLabel:          "tpcrawdecoder:daq"
 physics.producers.infill.InfillBadChannels:   true
-physics.producers.infill.InfillNoisyChannels: true
+physics.producers.infill.InfillNoisyChannels: false # Have alread put noisy in the bad list

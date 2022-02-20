@@ -75,28 +75,28 @@ private:
 
   TH2D*  fHistWiresPerfectZ;
   TH2D*  fHistWiresPerfectUV;
-  TH2D*  fHistWiresnov2019Z;
-  TH2D*  fHistWiresnov2019UV;
-  TH2D*  fHistWiresnov2019InfillZ;
-  TH2D*  fHistWiresnov2019InfillUV;
+  TH2D*  fHistWiresDeadZ;
+  TH2D*  fHistWiresDeadUV;
+  TH2D*  fHistWiresDeadInfillZ;
+  TH2D*  fHistWiresDeadInfillUV;
   // TH2D*  fHistWiresCaldataPerfectZ;
   // TH2D*  fHistWiresCaldataPerfectUV;
-  // TH2D*  fHistWiresCaldatanov2019Z;
-  // TH2D*  fHistWiresCaldatanov2019UV;
-  // TH2D*  fHistWiresCaldatanov2019InfillZ;
-  // TH2D*  fHistWiresCaldatanov2019InfillUV;
+  // TH2D*  fHistWiresCaldataDeadZ;
+  // TH2D*  fHistWiresCaldataDeadUV;
+  // TH2D*  fHistWiresCaldataDeadInfillZ;
+  // TH2D*  fHistWiresCaldataDeadInfillUV;
   TH2D*  fHistHitsPerfectZ;
   TH2D*  fHistHitsPerfectUV;
-  TH2D*  fHistHitsnov2019Z;
-  TH2D*  fHistHitsnov2019UV;
-  TH2D*  fHistHitsnov2019InfillZ;
-  TH2D*  fHistHitsnov2019InfillUV;
+  TH2D*  fHistHitsDeadZ;
+  TH2D*  fHistHitsDeadUV;
+  TH2D*  fHistHitsDeadInfillZ;
+  TH2D*  fHistHitsDeadInfillUV;
   TH2D*  fHistDigsPerfectZ;
   TH2D*  fHistDigsPerfectUV;
-  TH2D*  fHistDigsnov2019Z;
-  TH2D*  fHistDigsnov2019UV;
-  TH2D*  fHistDigsnov2019InfillZ;
-  TH2D*  fHistDigsnov2019InfillUV;
+  TH2D*  fHistDigsDeadZ;
+  TH2D*  fHistDigsDeadUV;
+  TH2D*  fHistDigsDeadInfillZ;
+  TH2D*  fHistDigsDeadInfillUV;
 
   TTree*                    fTreeDeadChs;
   int                       fROP;
@@ -129,8 +129,8 @@ Infill::InfillEvd::InfillEvd(fhicl::ParameterSet const& p)
     fInfillDigitLabel  (p.get<std::string> ("InfillDigitLabel"))
 {
   // consumes<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChPerfect"));
-  // consumes<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChnov2019"));
-  // consumes<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChnov2019Infill"));
+  // consumes<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChDead"));
+  // consumes<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChDeadInfill"));
 
   consumes<std::vector<recob::Wire>>(fPerfectWCSPLabel);
   consumes<std::vector<recob::Wire>>(fRealWCSPLabel);
@@ -148,7 +148,7 @@ void Infill::InfillEvd::analyze(art::Event const& e)
 {
   // Write RawDigits data to TH2s.
   const auto digsPerfect =       e.getValidHandle<std::vector<raw::RawDigit>>(fPerfectDigitLabel);
-  const auto digsnov2019Infill = e.getValidHandle<std::vector<raw::RawDigit>>(fInfillDigitLabel);
+  const auto digsDeadInfill = e.getValidHandle<std::vector<raw::RawDigit>>(fInfillDigitLabel);
 
   for (const raw::RawDigit &dig : *digsPerfect) {
     if (fGeom->ChannelToROP(dig.Channel()) == fRIDZ) {
@@ -162,20 +162,20 @@ void Infill::InfillEvd::analyze(art::Event const& e)
   for (const raw::RawDigit &dig : *digsPerfect) {
     if (!fDeadChs.count(dig.Channel())) {
       if (fGeom->ChannelToROP(dig.Channel()) == fRIDZ) {
-        this->fillRawDigit(fHistDigsnov2019Z, dig, fFirstChZ);
+        this->fillRawDigit(fHistDigsDeadZ, dig, fFirstChZ);
       }
       else if (fGeom->ChannelToROP(dig.Channel()) == fRIDUV) {
-        this->fillRawDigit(fHistDigsnov2019UV, dig, fFirstChUV);
+        this->fillRawDigit(fHistDigsDeadUV, dig, fFirstChUV);
       }
     }
   }
 
-  for (const raw::RawDigit &dig : *digsnov2019Infill) {
+  for (const raw::RawDigit &dig : *digsDeadInfill) {
     if (fGeom->ChannelToROP(dig.Channel()) == fRIDZ) {
-      this->fillRawDigit(fHistDigsnov2019InfillZ, dig, fFirstChZ);
+      this->fillRawDigit(fHistDigsDeadInfillZ, dig, fFirstChZ);
     }
     else if (fGeom->ChannelToROP(dig.Channel()) == fRIDUV) {
-      this->fillRawDigit(fHistDigsnov2019InfillUV, dig, fFirstChUV);
+      this->fillRawDigit(fHistDigsDeadInfillUV, dig, fFirstChUV);
     }
   }
 
@@ -183,8 +183,8 @@ void Infill::InfillEvd::analyze(art::Event const& e)
 
   // Write Wire data to TH2s.
   const auto wiresPerfect =       e.getValidHandle<std::vector<recob::Wire>>(fPerfectWCSPLabel);
-  const auto wiresnov2019 =       e.getValidHandle<std::vector<recob::Wire>>(fRealWCSPLabel);
-  const auto wiresnov2019Infill = e.getValidHandle<std::vector<recob::Wire>>(fInfillWCSPLabel);
+  const auto wiresDead =       e.getValidHandle<std::vector<recob::Wire>>(fRealWCSPLabel);
+  const auto wiresDeadInfill = e.getValidHandle<std::vector<recob::Wire>>(fInfillWCSPLabel);
 
   for (const recob::Wire &wire : *wiresPerfect) {
     if (fGeom->ChannelToROP(wire.Channel()) == fRIDZ) {
@@ -195,21 +195,21 @@ void Infill::InfillEvd::analyze(art::Event const& e)
     }
   }
 
-  for (const recob::Wire &wire : *wiresnov2019) {
+  for (const recob::Wire &wire : *wiresDead) {
     if (fGeom->ChannelToROP(wire.Channel()) == fRIDZ) {
-      this->fillWire(fHistWiresnov2019Z, wire, fFirstChZ);
+      this->fillWire(fHistWiresDeadZ, wire, fFirstChZ);
     }
     else if (fGeom->ChannelToROP(wire.Channel()) == fRIDUV) {
-      this->fillWire(fHistWiresnov2019UV, wire, fFirstChUV);
+      this->fillWire(fHistWiresDeadUV, wire, fFirstChUV);
     }
   }
 
-  for (const recob::Wire &wire : *wiresnov2019Infill) {
+  for (const recob::Wire &wire : *wiresDeadInfill) {
     if (fGeom->ChannelToROP(wire.Channel()) == fRIDZ) {
-      this->fillWire(fHistWiresnov2019InfillZ, wire, fFirstChZ);
+      this->fillWire(fHistWiresDeadInfillZ, wire, fFirstChZ);
     }
     else if (fGeom->ChannelToROP(wire.Channel()) == fRIDUV) {
-      this->fillWire(fHistWiresnov2019InfillUV, wire, fFirstChUV);
+      this->fillWire(fHistWiresDeadInfillUV, wire, fFirstChUV);
     }
   }
 
@@ -217,8 +217,8 @@ void Infill::InfillEvd::analyze(art::Event const& e)
 
   // Write caldata Wire data to TH2s (want to know if wirecell has bad channels hardcoded).
   // const auto wiresCaldataPerfect =       e.getValidHandle<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChPerfect"));
-  // const auto wiresCaldatanov2019 =       e.getValidHandle<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChnov2019"));
-  // const auto wiresCaldatanov2019Infill = e.getValidHandle<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChnov2019Infill"));
+  // const auto wiresCaldataDead =       e.getValidHandle<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChDead"));
+  // const auto wiresCaldataDeadInfill = e.getValidHandle<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChDeadInfill"));
 
   // for (const recob::Wire &wire : *wiresCaldataPerfect) {
   //   if (fGeom->ChannelToROP(wire.Channel()) == fRIDZ) {
@@ -229,21 +229,21 @@ void Infill::InfillEvd::analyze(art::Event const& e)
   //   }
   // }
 
-  // for (const recob::Wire &wire : *wiresCaldatanov2019) {
+  // for (const recob::Wire &wire : *wiresCaldataDead) {
   //   if (fGeom->ChannelToROP(wire.Channel()) == fRIDZ) {
-  //     this->fillWire(fHistWiresCaldatanov2019Z, wire, fFirstChZ);
+  //     this->fillWire(fHistWiresCaldataDeadZ, wire, fFirstChZ);
   //   }
   //   else if (fGeom->ChannelToROP(wire.Channel()) == fRIDUV) {
-  //     this->fillWire(fHistWiresCaldatanov2019UV, wire, fFirstChUV);
+  //     this->fillWire(fHistWiresCaldataDeadUV, wire, fFirstChUV);
   //   }
   // }
 
-  // for (const recob::Wire &wire : *wiresCaldatanov2019Infill) {
+  // for (const recob::Wire &wire : *wiresCaldataDeadInfill) {
   //   if (fGeom->ChannelToROP(wire.Channel()) == fRIDZ) {
-  //     this->fillWire(fHistWiresCaldatanov2019InfillZ, wire, fFirstChZ);
+  //     this->fillWire(fHistWiresCaldataDeadInfillZ, wire, fFirstChZ);
   //   }
   //   else if (fGeom->ChannelToROP(wire.Channel()) == fRIDUV) {
-  //     this->fillWire(fHistWiresCaldatanov2019InfillUV, wire, fFirstChUV);
+  //     this->fillWire(fHistWiresCaldataDeadInfillUV, wire, fFirstChUV);
   //   }
   // }
 
@@ -251,8 +251,8 @@ void Infill::InfillEvd::analyze(art::Event const& e)
 
   // Write Hit data to TH2s
   const auto hitsPerfect =       e.getValidHandle<std::vector<recob::Hit>>(fPerfectHitLabel);
-  const auto hitsnov2019 =       e.getValidHandle<std::vector<recob::Hit>>(fRealHitLabel);
-  const auto hitsnov2019Infill = e.getValidHandle<std::vector<recob::Hit>>(fInfillHitLabel);
+  const auto hitsDead =       e.getValidHandle<std::vector<recob::Hit>>(fRealHitLabel);
+  const auto hitsDeadInfill = e.getValidHandle<std::vector<recob::Hit>>(fInfillHitLabel);
 
   for (const recob::Hit &hit : *hitsPerfect) {
     if (fGeom->ChannelToROP(hit.Channel()) == fRIDZ) {
@@ -263,21 +263,21 @@ void Infill::InfillEvd::analyze(art::Event const& e)
     }
   }
 
-  for (const recob::Hit &hit : *hitsnov2019) {
+  for (const recob::Hit &hit : *hitsDead) {
     if (fGeom->ChannelToROP(hit.Channel()) == fRIDZ) {
-      this->fillHit(fHistHitsnov2019Z, hit, fFirstChZ);
+      this->fillHit(fHistHitsDeadZ, hit, fFirstChZ);
     }
     else if (fGeom->ChannelToROP(hit.Channel()) == fRIDUV) {
-      this->fillHit(fHistHitsnov2019UV, hit, fFirstChUV);
+      this->fillHit(fHistHitsDeadUV, hit, fFirstChUV);
     }
   }
 
-  for (const recob::Hit &hit : *hitsnov2019Infill) {
+  for (const recob::Hit &hit : *hitsDeadInfill) {
     if (fGeom->ChannelToROP(hit.Channel()) == fRIDZ) {
-      this->fillHit(fHistHitsnov2019InfillZ, hit, fFirstChZ);
+      this->fillHit(fHistHitsDeadInfillZ, hit, fFirstChZ);
     }
     else if (fGeom->ChannelToROP(hit.Channel()) == fRIDUV) {
-      this->fillHit(fHistHitsnov2019InfillUV, hit, fFirstChUV);
+      this->fillHit(fHistHitsDeadInfillUV, hit, fFirstChUV);
     }
   }
 
@@ -292,33 +292,33 @@ void Infill::InfillEvd::beginJob()
 
   fHistWiresPerfectZ =        tfs->make<TH2D>("wclsdatasp_gauss_RecoChPerfectZ", "Perfect WCSP Gauss;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
   fHistWiresPerfectUV =       tfs->make<TH2D>("wclsdatasp_gauss_RecoChPerfectUV", "Perfect WCSP Gauss;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
-  fHistWiresnov2019Z =        tfs->make<TH2D>("wclsdatasp_gauss_RecoChnov2019Z", "nov2019 WCSP Gauss;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
-  fHistWiresnov2019UV =       tfs->make<TH2D>("wclsdatasp_gauss_RecoChnov2019UV", "nov2019 WCSP Gauss;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
-  fHistWiresnov2019InfillZ =  tfs->make<TH2D>("wclsdatasp_gauss_RecoChnov2019InfillZ", "nov2019Infill WCSP Gauss;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
-  fHistWiresnov2019InfillUV = tfs->make<TH2D>("wclsdatasp_gauss_RecoChnov2019InfillUV", "nov2019Infill WCSP Gauss;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
+  fHistWiresDeadZ =        tfs->make<TH2D>("wclsdatasp_gauss_RecoChDeadZ", "Dead WCSP Gauss;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
+  fHistWiresDeadUV =       tfs->make<TH2D>("wclsdatasp_gauss_RecoChDeadUV", "Dead WCSP Gauss;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
+  fHistWiresDeadInfillZ =  tfs->make<TH2D>("wclsdatasp_gauss_RecoChDeadInfillZ", "DeadInfill WCSP Gauss;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
+  fHistWiresDeadInfillUV = tfs->make<TH2D>("wclsdatasp_gauss_RecoChDeadInfillUV", "DeadInfill WCSP Gauss;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
 
   // fHistWiresCaldataPerfectZ =        tfs->make<TH2D>("caldata_dataprep_RecoChPerfectZ", "Perfect dataprep;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
   // fHistWiresCaldataPerfectUV =       tfs->make<TH2D>("caldata_dataprep_RecoChPerfectUV", "Perfect dataprep;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
-  // fHistWiresCaldatanov2019Z =        tfs->make<TH2D>("caldata_dataprep_RecoChnov2019Z", "nov2019 dataprep;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
-  // fHistWiresCaldatanov2019UV =       tfs->make<TH2D>("caldata_dataprep_RecoChnov2019UV", "nov2019 dataprep;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
-  // fHistWiresCaldatanov2019InfillZ =  tfs->make<TH2D>("caldata_dataprep_RecoChnov2019InfillZ", "nov2019Infill dataprep;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
-  // fHistWiresCaldatanov2019InfillUV = tfs->make<TH2D>("caldata_dataprep_RecoChnov2019InfillUV", "nov2019Infill dataprep;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
+  // fHistWiresCaldataDeadZ =        tfs->make<TH2D>("caldata_dataprep_RecoChDeadZ", "Dead dataprep;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
+  // fHistWiresCaldataDeadUV =       tfs->make<TH2D>("caldata_dataprep_RecoChDeadUV", "Dead dataprep;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
+  // fHistWiresCaldataDeadInfillZ =  tfs->make<TH2D>("caldata_dataprep_RecoChDeadInfillZ", "DeadInfill dataprep;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
+  // fHistWiresCaldataDeadInfillUV = tfs->make<TH2D>("caldata_dataprep_RecoChDeadInfillUV", "DeadInfill dataprep;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
 
   fHistHitsPerfectZ =        tfs->make<TH2D>("gaushit_RecoChPerfectZ", "Perfect Gauss Hit;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
   fHistHitsPerfectUV =       tfs->make<TH2D>("gaushit_RecoChPerfectUV", "Perfect Gauss Hit;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
-  fHistHitsnov2019Z =        tfs->make<TH2D>("gaushit_RecoChnov2019Z", "nov2019 Gauss Hit;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
-  fHistHitsnov2019UV =       tfs->make<TH2D>("gaushit_RecoChnov2019UV", "nov2019 Gauss Hit;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
-  fHistHitsnov2019InfillZ =  tfs->make<TH2D>("gaushit_RecoChnov2019InfillZ", "nov2019Infill Gauss Hit;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
-  fHistHitsnov2019InfillUV = tfs->make<TH2D>("gaushit_RecoChnov2019InfillUV", "nov2019Infill Gauss Hit;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
+  fHistHitsDeadZ =        tfs->make<TH2D>("gaushit_RecoChDeadZ", "Dead Gauss Hit;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
+  fHistHitsDeadUV =       tfs->make<TH2D>("gaushit_RecoChDeadUV", "Dead Gauss Hit;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
+  fHistHitsDeadInfillZ =  tfs->make<TH2D>("gaushit_RecoChDeadInfillZ", "DeadInfill Gauss Hit;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
+  fHistHitsDeadInfillUV = tfs->make<TH2D>("gaushit_RecoChDeadInfillUV", "DeadInfill Gauss Hit;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
 
   fHistDigsPerfectZ =        tfs->make<TH2D>("rawdigits_RecoChPerfectZ", "Perfect Raw Digits;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
   fHistDigsPerfectUV =       tfs->make<TH2D>("rawdigits_RecoChPerfectUV", "Perfect Raw Digits;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
-  fHistDigsnov2019Z =        tfs->make<TH2D>("rawdigits_RecoChnov2019Z", "nov2019 Raw Digits;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
-  fHistDigsnov2019UV =       tfs->make<TH2D>("rawdigits_RecoChnov2019UV", "nov2019 Raw Digits;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
-  fHistDigsnov2019InfillZ =  tfs->make<TH2D>("rawdigits_RecoChnov2019InfillZ", "nov2019Infill Raw Digits;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
-  fHistDigsnov2019InfillUV = tfs->make<TH2D>("rawdigits_RecoChnov2019InfillUV", "nov2019Infill Raw Digits;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
+  fHistDigsDeadZ =        tfs->make<TH2D>("rawdigits_RecoChDeadZ", "Dead Raw Digits;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
+  fHistDigsDeadUV =       tfs->make<TH2D>("rawdigits_RecoChDeadUV", "Dead Raw Digits;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
+  fHistDigsDeadInfillZ =  tfs->make<TH2D>("rawdigits_RecoChDeadInfillZ", "DeadInfill Raw Digits;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
+  fHistDigsDeadInfillUV = tfs->make<TH2D>("rawdigits_RecoChDeadInfillUV", "DeadInfill Raw Digits;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
 
-  fTreeDeadChs = tfs->make<TTree>("nov2019_deadchannels", "nov2019 Dead Channels");
+  fTreeDeadChs = tfs->make<TTree>("Dead_deadchannels", "Dead Dead Channels");
   fTreeDeadChs->Branch("ROP", &fROP, "rop/I");
   fTreeDeadChs->Branch("DeadChannels", &fROPDeadChs);
 
