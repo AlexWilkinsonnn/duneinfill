@@ -25,7 +25,7 @@ outputs:
   out1:
   {
     module_type: RootOutput
-    fileName:    "%ifb_infill.root"
+    fileName:    "%ifb_infillnoisy.root"
     outputCommands: [ "keep *" ]
     compressionLevel: 1 #zlib argument (0-9)
     fastCloning: true

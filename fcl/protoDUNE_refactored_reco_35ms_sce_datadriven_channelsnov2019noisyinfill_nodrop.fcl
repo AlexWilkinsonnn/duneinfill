@@ -1,0 +1,28 @@
+## protoDUNE_refactored_reco_35ms_sce_datadriven.fcl on infilled rawdigits
+
+#include "protoDUNE_refactored_reco_35ms_sce_datadriven.fcl"
+
+process_name: RecoChnov2019Infill
+
+pdsp_channel_status_perfect: {
+ 
+  # implements IChannelStatusService
+  service_provider: SimpleChannelStatusService
+
+  # list of bad channels:
+  BadChannels:   [ ]
+
+  # list of bad noisy channels:
+  NoisyChannels: [ ]
+
+}
+
+physics.producers.caldata.DigitLabel: "infill" 
+
+physics.producers.wclsdatasp.wcls_main.configs: [ "pgrapher/experiment/pdsp/wcls-sp_nov2019noisy.jsonnet" ]
+
+services.ChannelStatusService: @local::pdsp_channel_status_perfect
+
+// Keep all data products for running the evd fcl
+outputs.out1.outputCommands:   [ "keep *" ]
+outputs.out1.fileName:         "%ifb_infillnoisyreconodrop.root"

@@ -3,6 +3,20 @@ BEGIN_PROLOG
 InfillEvd:
 {
   module_type: "InfillEvd"
+
+  BadChsInfilled:   true
+  NoisyChsInfilled: false
+
+  PerfectWCSPLabel: "wclsdatasp:gauss:RecoChPerfect"
+  RealWCSPLabel:    "wclsdatasp:gauss:RecoChnov2019"
+  InfillWCSPLabel:  "wclsdatasp:gauss:RecoChnov2019Infill"
+
+  PerfectHitLabel: "gaushit::RecoChPerfect"
+  RealHitLabel:    "gaushit::RecoChnov2019"
+  InfillHitLabel:  "gaushit::RecoChnov2019Infill" 
+
+  PerfectDigitLabel: "tpcrawdecor:daq:DetsimStage1"
+  InfillDigitLabel:  "infill::InfillChannelsPD" 
 }
 
 END_PROLOG

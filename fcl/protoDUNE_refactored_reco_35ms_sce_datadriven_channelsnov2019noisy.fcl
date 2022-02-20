@@ -6,9 +6,9 @@ process_name: RecoChnov2019Noisy
 
 services.ChannelStatusService: @local::pdsp_channel_status_nov2019
 
+physics.producers.wclsdatasp.wcls_main.configs: [ "pgrapher/experiment/pdsp/wcls-sp_nov2019noisy.jsonnet" ]
+
 tools.pdsp_RemoveBadChannels.RemoveNoisyChs: true
 
 outputs.out1.outputCommands: [ "keep *" ]
 outputs.out1.fileName: "%ifb_nov2019noisyreco.root"
-
-

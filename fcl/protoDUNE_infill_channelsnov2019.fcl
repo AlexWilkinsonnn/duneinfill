@@ -1,7 +1,7 @@
 #include "services_dune.fcl"
 #include "InfillChannelsConfig.fcl"
 
-process_name: InfillChannelsPD
+process_name: InfillChannelsNoisyPD
 
 source:
 {

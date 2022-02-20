@@ -67,7 +67,7 @@ public:
 private:
   const geo::GeometryCore* fGeom;
 
-  std::set<raw::ChannelID_t> fBadChs;
+  std::set<raw::ChannelID_t> fDeadChs;
   readout::ROPID             fRIDZ;
   readout::ROPID             fRIDUV;
   raw::ChannelID_t           fFirstChZ;
@@ -98,36 +98,57 @@ private:
   TH2D*  fHistDigsnov2019InfillZ;
   TH2D*  fHistDigsnov2019InfillUV;
 
-  TTree*                    fTreeBadChs;
+  TTree*                    fTreeDeadChs;
   int                       fROP;
-  std::vector<unsigned int> fROPBadChs;
+  std::vector<unsigned int> fROPDeadChs;
+
+  bool fBadChsInfilled;
+  bool fNoisyChsInfilled;
+  std::string fPerfectWCSPLabel;
+  std::string fRealWCSPLabel;
+  std::string fInfillWCSPLabel;
+  std::string fPerfectHitLabel;
+  std::string fRealHitLabel;
+  std::string fInfillHitLabel;
+  std::string fPerfectDigitLabel;
+  std::string fInfillDigitLabel;
 };
 
 
 Infill::InfillEvd::InfillEvd(fhicl::ParameterSet const& p)
-  : EDAnalyzer{p}
+  : EDAnalyzer{p},
+    fBadChsInfilled    (p.get<bool>        ("BadChsInfilled")),
+    fNoisyChsInfilled  (p.get<bool>        ("NoisyChsInfilled")),
+    fPerfectWCSPLabel  (p.get<std::string> ("PerfectWCSPLabel")),
+    fRealWCSPLabel     (p.get<std::string> ("RealWCSPLabel")),
+    fInfillWCSPLabel   (p.get<std::string> ("InfillWCSPLabel")),
+    fPerfectHitLabel   (p.get<std::string> ("PerfectHitLabel")),
+    fRealHitLabel      (p.get<std::string> ("RealHitLabel")),
+    fInfillHitLabel    (p.get<std::string> ("InfillHitLabel")),
+    fPerfectDigitLabel (p.get<std::string> ("PerfectDigitLabel")),
+    fInfillDigitLabel  (p.get<std::string> ("InfillDigitLabel"))
 {
   // consumes<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChPerfect"));
   // consumes<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChnov2019"));
   // consumes<std::vector<recob::Wire>>(art::InputTag("caldata", "dataprep", "RecoChnov2019Infill"));
 
-  consumes<std::vector<recob::Wire>>(art::InputTag("wclsdatasp", "gauss", "RecoChPerfect"));
-  consumes<std::vector<recob::Wire>>(art::InputTag("wclsdatasp", "gauss", "RecoChnov2019"));
-  consumes<std::vector<recob::Wire>>(art::InputTag("wclsdatasp", "gauss", "RecoChnov2019Infill"));
+  consumes<std::vector<recob::Wire>>(fPerfectWCSPLabel);
+  consumes<std::vector<recob::Wire>>(fRealWCSPLabel);
+  consumes<std::vector<recob::Wire>>(fInfillWCSPLabel);
 
-  consumes<std::vector<recob::Hit>>(art::InputTag("gaushit", "", "RecoChPerfect"));
-  consumes<std::vector<recob::Hit>>(art::InputTag("gaushit", "", "RecoChnov2019"));
-  consumes<std::vector<recob::Hit>>(art::InputTag("gaushit", "", "RecoChnov2019Infill"));
+  consumes<std::vector<recob::Hit>>(fPerfectHitLabel);
+  consumes<std::vector<recob::Hit>>(fRealHitLabel);
+  consumes<std::vector<recob::Hit>>(fInfillHitLabel);
 
-  consumes<std::vector<raw::RawDigit>>(art::InputTag("tpcrawdecoder", "daq", "DetsimStage1"));
-  consumes<std::vector<raw::RawDigit>>(art::InputTag("infill", "", "InfillChannelsPD"));
+  consumes<std::vector<raw::RawDigit>>(fPerfectDigitLabel);
+  consumes<std::vector<raw::RawDigit>>(fInfillDigitLabel);
 }
 
 void Infill::InfillEvd::analyze(art::Event const& e)
 {
   // Write RawDigits data to TH2s.
-  const auto digsPerfect =       e.getValidHandle<std::vector<raw::RawDigit>>(art::InputTag("tpcrawdecoder", "daq", "DetsimStage1"));
-  const auto digsnov2019Infill = e.getValidHandle<std::vector<raw::RawDigit>>(art::InputTag("infill", "", "InfillChannelsPD"));
+  const auto digsPerfect =       e.getValidHandle<std::vector<raw::RawDigit>>(fPerfectDigitLabel);
+  const auto digsnov2019Infill = e.getValidHandle<std::vector<raw::RawDigit>>(fInfillDigitLabel);
 
   for (const raw::RawDigit &dig : *digsPerfect) {
     if (fGeom->ChannelToROP(dig.Channel()) == fRIDZ) {
@@ -139,7 +160,7 @@ void Infill::InfillEvd::analyze(art::Event const& e)
   }
 
   for (const raw::RawDigit &dig : *digsPerfect) {
-    if (!fBadChs.count(dig.Channel())) {
+    if (!fDeadChs.count(dig.Channel())) {
       if (fGeom->ChannelToROP(dig.Channel()) == fRIDZ) {
         this->fillRawDigit(fHistDigsnov2019Z, dig, fFirstChZ);
       }
@@ -161,9 +182,9 @@ void Infill::InfillEvd::analyze(art::Event const& e)
   std::cout << "RawDigits written.\n";
 
   // Write Wire data to TH2s.
-  const auto wiresPerfect =       e.getValidHandle<std::vector<recob::Wire>>(art::InputTag("wclsdatasp", "gauss", "RecoChPerfect"));
-  const auto wiresnov2019 =       e.getValidHandle<std::vector<recob::Wire>>(art::InputTag("wclsdatasp", "gauss", "RecoChnov2019"));
-  const auto wiresnov2019Infill = e.getValidHandle<std::vector<recob::Wire>>(art::InputTag("wclsdatasp", "gauss", "RecoChnov2019Infill"));
+  const auto wiresPerfect =       e.getValidHandle<std::vector<recob::Wire>>(fPerfectWCSPLabel);
+  const auto wiresnov2019 =       e.getValidHandle<std::vector<recob::Wire>>(fRealWCSPLabel);
+  const auto wiresnov2019Infill = e.getValidHandle<std::vector<recob::Wire>>(fInfillWCSPLabel);
 
   for (const recob::Wire &wire : *wiresPerfect) {
     if (fGeom->ChannelToROP(wire.Channel()) == fRIDZ) {
@@ -229,9 +250,9 @@ void Infill::InfillEvd::analyze(art::Event const& e)
   // std::cout << "caldata wires written.\n";
 
   // Write Hit data to TH2s
-  const auto hitsPerfect =       e.getValidHandle<std::vector<recob::Hit>>(art::InputTag("gaushit", "", "RecoChPerfect"));
-  const auto hitsnov2019 =       e.getValidHandle<std::vector<recob::Hit>>(art::InputTag("gaushit", "", "RecoChnov2019"));
-  const auto hitsnov2019Infill = e.getValidHandle<std::vector<recob::Hit>>(art::InputTag("gaushit", "", "RecoChnov2019Infill"));
+  const auto hitsPerfect =       e.getValidHandle<std::vector<recob::Hit>>(fPerfectHitLabel);
+  const auto hitsnov2019 =       e.getValidHandle<std::vector<recob::Hit>>(fRealHitLabel);
+  const auto hitsnov2019Infill = e.getValidHandle<std::vector<recob::Hit>>(fInfillHitLabel);
 
   for (const recob::Hit &hit : *hitsPerfect) {
     if (fGeom->ChannelToROP(hit.Channel()) == fRIDZ) {
@@ -297,62 +318,78 @@ void Infill::InfillEvd::beginJob()
   fHistDigsnov2019InfillZ =  tfs->make<TH2D>("rawdigits_RecoChnov2019InfillZ", "nov2019Infill Raw Digits;Channel;Tick", 480, 0, 480, 6000, 0, 6000);
   fHistDigsnov2019InfillUV = tfs->make<TH2D>("rawdigits_RecoChnov2019InfillUV", "nov2019Infill Raw Digits;Channel;Tick", 800, 0, 800, 6000, 0, 6000);
 
-  fTreeBadChs = tfs->make<TTree>("nov2019_badchannels", "nov2019 Bad Channels");
-  fTreeBadChs->Branch("ROP", &fROP, "rop/I");
-  fTreeBadChs->Branch("BadChannels", &fROPBadChs);
+  fTreeDeadChs = tfs->make<TTree>("nov2019_deadchannels", "nov2019 Dead Channels");
+  fTreeDeadChs->Branch("ROP", &fROP, "rop/I");
+  fTreeDeadChs->Branch("DeadChannels", &fROPDeadChs);
 
-  // Map bad channels to ROP if ROP is not facing wall.
-  fBadChs = art::ServiceHandle<lariov::ChannelStatusService const>()->GetProvider().BadChannels();
-  std::map<readout::ROPID, std::vector<raw::ChannelID_t>> activeRIDBadChsZ;
-  std::map<readout::ROPID, std::vector<raw::ChannelID_t>> activeRIDBadChsUV;
+  // Get channels that have been infilled.
+  const std::set<raw::ChannelID_t> badChs =   art::ServiceHandle<lariov::ChannelStatusService const>()->GetProvider().BadChannels();
+  const std::set<raw::ChannelID_t> noisyChs = art::ServiceHandle<lariov::ChannelStatusService const>()->GetProvider().NoisyChannels();
 
-  for (const raw::ChannelID_t &ch : fBadChs) {
+  if (fBadChsInfilled && fNoisyChsInfilled) {
+    std::merge(
+      badChs.begin(), badChs.end(), noisyChs.begin(), noisyChs.end(), 
+      std::inserter(fDeadChs, fDeadChs.begin())
+    );
+  }
+  else if (fBadChsInfilled) {
+    fDeadChs.insert(badChs.begin(), badChs.end());
+  }
+  else if (fNoisyChsInfilled) {
+    fDeadChs.insert(noisyChs.begin(), noisyChs.end());
+  }
+
+  // Map dead channels to ROP if ROP is not facing wall.
+  std::map<readout::ROPID, std::vector<raw::ChannelID_t>> activeRIDDeadChsZ;
+  std::map<readout::ROPID, std::vector<raw::ChannelID_t>> activeRIDDeadChsUV;
+
+  for (const raw::ChannelID_t &ch : fDeadChs) {
     const readout::ROPID rID = fGeom->ChannelToROP(ch);
 
     for (const geo::TPCID &tID : fGeom->ROPtoTPCs(rID)) { 
       // Width is drift coordinate x. DetHalfWidth: Normal is 178.813, wall facing is 0.736875.
       if (fGeom->DetHalfWidth(tID) > 170) { // Not facing wall.
         if (fGeom->View(ch) == geo::kZ) {
-          activeRIDBadChsZ[fGeom->ChannelToROP(ch)].push_back(ch);
+          activeRIDDeadChsZ[fGeom->ChannelToROP(ch)].push_back(ch);
         }
         else if (fGeom->View(ch) == geo::kU || fGeom->View(ch) == geo::kV) {
-          activeRIDBadChsUV[fGeom->ChannelToROP(ch)].push_back(ch);
+          activeRIDDeadChsUV[fGeom->ChannelToROP(ch)].push_back(ch);
         }
       }
     }
   }
 
-  // Get collection and induction ROPs with the most bad channels.
-  std::map<readout::ROPID, std::vector<raw::ChannelID_t>>::iterator mostBadChsZ =
-    std::max_element(activeRIDBadChsZ.begin(), activeRIDBadChsZ.end(),
+  // Get collection and induction ROPs with the most dead channels.
+  std::map<readout::ROPID, std::vector<raw::ChannelID_t>>::iterator mostDeadChsZ =
+    std::max_element(activeRIDDeadChsZ.begin(), activeRIDDeadChsZ.end(),
     [] (const std::pair<readout::ROPID, std::vector<raw::ChannelID_t>> &a, const std::pair<readout::ROPID, std::vector<raw::ChannelID_t>> &b)
     -> bool{ return a.second.size() < b.second.size(); });
-  fRIDZ = mostBadChsZ->first;
+  fRIDZ = mostDeadChsZ->first;
   fFirstChZ = fGeom->FirstChannelInROP(fRIDZ);
 
-  std::map<readout::ROPID, std::vector<raw::ChannelID_t>>::iterator mostBadChsUV =
-    std::max_element(activeRIDBadChsUV.begin(), activeRIDBadChsUV.end(),
+  std::map<readout::ROPID, std::vector<raw::ChannelID_t>>::iterator mostDeadChsUV =
+    std::max_element(activeRIDDeadChsUV.begin(), activeRIDDeadChsUV.end(),
     [] (const std::pair<readout::ROPID, std::vector<raw::ChannelID_t>> &a, const std::pair<readout::ROPID, std::vector<raw::ChannelID_t>> &b)
     -> bool{ return a.second.size() < b.second.size(); });
-  fRIDUV = mostBadChsUV->first;
+  fRIDUV = mostDeadChsUV->first;
   fFirstChUV = fGeom->FirstChannelInROP(fRIDUV);
 
-  // Dump bad channel info
+  // Dump dead channel info
   this->reset();
   fROP = fRIDZ.ROP;
-  for (auto &ch : mostBadChsZ->second) { 
+  for (auto &ch : mostDeadChsZ->second) { 
     ch -= fFirstChZ;
   }
-  fROPBadChs = mostBadChsZ->second;
-  fTreeBadChs->Fill();
+  fROPDeadChs = mostDeadChsZ->second;
+  fTreeDeadChs->Fill();
 
   this->reset();
   fROP = fRIDUV.ROP;
-  for (auto &ch : mostBadChsUV->second) {
+  for (auto &ch : mostDeadChsUV->second) {
     ch -= fFirstChUV;
   }
-  fROPBadChs = mostBadChsUV->second;
-  fTreeBadChs->Fill();
+  fROPDeadChs = mostDeadChsUV->second;
+  fTreeDeadChs->Fill();
 }
 
 void Infill::InfillEvd::endJob()
@@ -388,7 +425,7 @@ void Infill::InfillEvd::fillHit(TH2D *hist, const recob::Hit &hit, const raw::Ch
 void Infill::InfillEvd::reset()
 {
   fROP = -1;
-  fROPBadChs.clear();
+  fROPDeadChs.clear();
 }
 
 DEFINE_ART_MODULE(Infill::InfillEvd)
