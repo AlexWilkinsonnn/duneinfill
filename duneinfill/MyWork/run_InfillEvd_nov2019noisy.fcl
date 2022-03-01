@@ -14,7 +14,7 @@ services:
 {
   @table::protodune_services
   TFileService: { fileName: "infill_evd_nov2019noisy.root" }
-  ChannelStatusService :@local::pdsp_channel_status_nov2019badnoisy
+  ChannelStatusService: @local::pdsp_channel_status_nov2019badnoisy
 }
 
 physics:
