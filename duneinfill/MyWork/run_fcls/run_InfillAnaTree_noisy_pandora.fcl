@@ -1,0 +1,49 @@
+#include "services_dune.fcl"
+#include "InfillAnaTreeConfig.fcl"
+
+process_name: InfillAnaTree
+
+source:
+{
+  module_type: RootInput
+  maxEvents:   -1
+}
+
+services:
+{
+  @table::protodune_services
+  TFileService: { fileName: "infill_ana_pandora.root" }
+}
+
+physics:
+{
+  analyzers:
+  {
+    infillana: @local::InfillAnaTree
+  }
+  path0:      [ infillana ]
+  end_paths:  [ path0 ]
+}
+
+services.Geometry: @local::protodune_geo
+
+// Use 'pandora' labelled products
+physics.analyzers.infillana.PerfectParticleIDLabel: "pandorapid::RecoChPerfect"
+physics.analyzers.infillana.RealParticleIDLabel:    "pandorapid::RecoChnov2019Noisy"
+physics.analyzers.infillana.InfillParticleIDLabel:  "pandorapid::RecoChInfill"
+physics.analyzers.infillana.PerfectPFParticleLabel: "pandora::RecoChPerfect"
+physics.analyzers.infillana.RealPFParticleLabel:    "pandora::RecoChnov2019Noisy"
+physics.analyzers.infillana.InfillPFParticleLabel:  "pandora::RecoChInfill"
+physics.analyzers.infillana.PerfectTrackLabel:      "pandoraTrack::RecoChPerfect"
+physics.analyzers.infillana.RealTrackLabel:         "pandoraTrack::RecoChnov2019Noisy"
+physics.analyzers.infillana.InfillTrackLabel:       "pandoraTrack::RecoChInfill"
+physics.analyzers.infillana.PerfectShowerLabel:     "pandoraShower::RecoChPerfect"
+physics.analyzers.infillana.RealShowerLabel:        "pandoraShower::RecoChnov2019Noisy"
+physics.analyzers.infillana.InfillShowerLabel:      "pandoraShower::RecoChInfill"
+
+// 'pandora' label has all the relevant products
+physics.analyzers.infillana.DumpParticleID: true
+physics.analyzers.infillana.DumpPFParticle: true
+physics.analyzers.infillana.DumpTrack:      true
+physics.analyzers.infillana.DumpShower:     true
+

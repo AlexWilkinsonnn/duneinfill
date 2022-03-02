@@ -1,0 +1,37 @@
+#include "services_dune.fcl"
+#include "InfillEvdConfig.fcl"
+#include "channelstatus_pdsp_nov2019badnoisy.fcl"
+
+process_name: InfillEvd
+
+source:
+{
+  module_type: RootInput
+  maxEvents:   1
+}
+
+services:
+{
+  @table::protodune_services
+  TFileService: { fileName: "infill_evd_nov2019noisy.root" }
+  ChannelStatusService: @local::pdsp_channel_status_nov2019badnoisy
+}
+
+physics:
+{
+  analyzers:
+  {
+    infillevd: @local::InfillEvd
+  }
+  path0:      [ infillevd ]
+  end_paths:  [ path0 ]
+}
+
+services.Geometry: @local::protodune_geo
+
+physics.analyzers.infillevd.RealWCSPLabel:    "wclsdatasp:gauss:RecoChnov2019Noisy"
+physics.analyzers.infillevd.RealHitLabel:     "gaushit::RecoChnov2019Noisy"
+physics.analyzers.infillevd.InfillDigitLabel: "infill::InfillChannelsNoisyPD"
+physics.analyzers.infillevd.NoisyChsInfilled: false
+physics.analyzers.infillevd.InfillWCSPLabel:  "wclsdatasp:gauss:RecoChInfill"
+physics.analyzers.infillevd.InfillHitLabel:   "gaushit::RecoChInfill"
