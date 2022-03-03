@@ -1,4 +1,4 @@
-#include "PDSPAnalyzer.fcl"
+#include "MyPDSPAnalyzer.fcl"
 #include "services_dune.fcl"
 #include "ProtoDUNETruthBeamFilter.fcl"
 #include "protoDUNE_reco_mc_prolog.fcl"
@@ -74,7 +74,7 @@ physics.analyzers.pduneana.SelectEvents: ["fpath"]
 physics.analyzers.pduneana.CalorimetryTagSCE: "pandoracali::RecoChInfill"
 physics.analyzers.pduneana.CalorimetryTagNoSCE: "pandoracalonosce::RecoChInfill" ##For no-SCE sample
 physics.analyzers.pduneana.Pandora2CaloSCE: "pandora2cali::RecoChInfill"
-physics.analyzers.pduneana.Verbose: false 
+physics.analyzers.pduneana.Verbose: false
 physics.analyzers.pduneana.DoReweight: true
 physics.analyzers.pduneana.FracsFile: "Geant4ReweightInput/LAr_PiPlus_cascade.root"
 physics.analyzers.pduneana.ProtFracsFile: "Geant4ReweightInput/proton.root"
@@ -268,3 +268,17 @@ services.SpaceCharge.EnableCalSpatialSCE: true
 services.SpaceCharge.EnableSimEfieldSCE: true
 services.SpaceCharge.EnableSimSpatialSCE: true
 services.SpaceCharge.EnableSimulationSCE: true
+
+physics.analyzers.pduneana.SpacePointModuleLabel: "reco3d::RecoChInfill"
+physics.analyzers.pduneana.TrackModuleLabel:      "pandoraTrack::RecoChInfill"
+physics.analyzers.pduneana.TrackerTag:            "pandoraTrack::RecoChInfill"
+physics.analyzers.pduneana.HitTag:                "hitpdune::RecoChInfill"
+physics.analyzers.pduneana.ShowerTag:             "pandoraShower::RecoChInfill"
+physics.analyzers.pduneana.PFParticleTag:         "pandora::RecoChInfill"
+physics.analyzers.pduneana.SpacePointLabel:       "pandora::RecoChInfill"
+
+physics.analyzers.pduneana.PandoraCaloTag:    "pandoracalo::RecoChInfill"
+physics.analyzers.pduneana.ShowerCaloTag:     "pandoraShowercalo::RecoChInfill"
+physics.analyzers.pduneana.Pandora2TrackTag:  "pandora2Track::RecoChInfill"
+physics.analyzers.pduneana.Pandora2ShowerTag: "pandora2Shower::RecoChInfill"
+physics.analyzers.pduneana.EmtrkmichelidTag:  "emtrkmichelid:emtrkmichel:RecoChInfill"

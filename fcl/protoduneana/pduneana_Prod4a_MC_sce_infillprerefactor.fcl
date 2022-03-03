@@ -1,4 +1,4 @@
-#include "PDSPAnalyzer.fcl"
+#include "MyPDSPAnalyzer.fcl"
 #include "services_dune.fcl"
 #include "ProtoDUNETruthBeamFilter.fcl"
 #include "protoDUNE_reco_mc_prolog.fcl"
@@ -268,3 +268,17 @@ services.SpaceCharge.EnableCalSpatialSCE: true
 services.SpaceCharge.EnableSimEfieldSCE: true
 services.SpaceCharge.EnableSimSpatialSCE: true
 services.SpaceCharge.EnableSimulationSCE: true
+
+physics.analyzers.pduneana.SpacePointModuleLabel: "reco3d::RecoChnov2019Infill"
+physics.analyzers.pduneana.TrackModuleLabel:      "pandoraTrack::RecoChnov2019Infill"
+physics.analyzers.pduneana.TrackerTag:            "pandoraTrack::RecoChnov2019Infill"
+physics.analyzers.pduneana.HitTag:                "hitpdune::RecoChnov2019Infill"
+physics.analyzers.pduneana.ShowerTag:             "pandoraShower::RecoChnov2019Infill"
+physics.analyzers.pduneana.PFParticleTag:         "pandora::RecoChnov2019Infill"
+physics.analyzers.pduneana.SpacePointLabel:       "pandora::RecoChnov2019Infill"
+
+physics.analyzers.pduneana.PandoraCaloTag:    "pandoracalo::RecoChnov2019Infill"
+physics.analyzers.pduneana.ShowerCaloTag:     "pandoraShowercalo::RecoChnov2019Infill"
+physics.analyzers.pduneana.Pandora2TrackTag:  "pandora2Track::RecoChnov2019Infill"
+physics.analyzers.pduneana.Pandora2ShowerTag: "pandora2Shower::RecoChnov2019Infill"
+physics.analyzers.pduneana.EmtrkmichelidTag:  "emtrkmichelid:emtrkmichel:RecoChnov2019Infill"
