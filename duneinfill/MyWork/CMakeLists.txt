@@ -37,8 +37,32 @@ art_make(
                 ${ROOT_SPECTRUM}
                 ${ROOT_ROOFIT}
                 ${ROOT_ROOFITCORE}
+
+                larsim::Simulation
+                lardata::Utilities
+                lardata::ArtDataHelper
+                nusimdata::SimulationBase
+                larsim::MCCheater_PhotonBackTrackerService_service           
+                larsim::MCCheater_BackTrackerService_service           
+                larsim::MCCheater_ParticleInventoryService_service
+                larreco::RecoAlg
+                ProtoDUNEUtilities
+                MyProtoDUNEUtilities
+                geant4reweight::ReweightBaseLib
+                geant4reweight::PropBaseLib
+                art::Persistency_Common
+                canvas
+                art::Persistency_Provenance
+                art_root_io
+                ROOT::Core
+                art::Utilities
         )
 
 install_headers()
-install_fhicl()
 install_source()
+
+install_fhicl()
+FILE(GLOB fcl_files *.fcl)
+install_source( EXTRAS ${fcl_files} )
+
+add_subdirectory(run_fcls)
