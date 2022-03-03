@@ -17,9 +17,64 @@ pdsp_channel_status_perfect: {
 
 }
 
-physics.producers.wclsdatasp.wcls_main.configs: [ "pgrapher/experiment/pdsp/wcls-sp_perfect.jsonnet" ]
+# Don't want to risk wildcarding the process name.
+physics.producers.caldata.DigitLabel:                          "tpcrawdecoder:daq" 
+physics.producers.wclsdatasp.wcls_main.params.raw_input_label: "caldata:dataprep:RecoChPerfect"
+physics.producers.gaushit.CalDataModuleLabel:                  "wclsdatasp:gauss:RecoChPerfect"
+physics.filters.nhitsfilter.HitModule:                         "gaushit::RecoChPerfect"
+physics.producers.reco3d.HitLabel:                             "gaushit::RecoChPerfect"
+physics.producers.hitpdune.HitModuleLabel:                     "gaushit::RecoChPerfect"
+physics.producers.hitpdune.SpModuleLabel:                      "reco3d::RecoChPerfect"
+physics.producers.pandora.HitFinderModuleLabel:                "hitpdune::RecoChPerfect"
+physics.producers.pandoraWriter.HitFinderModuleLabel:          "hitpdune::RecoChPerfect"
+physics.producers.pandoraTrack.PFParticleLabel:                "pandora::RecoChPerfect"
+physics.producers.pandoraShower.PFParticleLabel:               "pandora::RecoChPerfect"
+physics.producers.pandoracalo.SpacePointModuleLabel:           "pandora::RecoChPerfect"
+physics.producers.pandoracalo.TrackModuleLabel:                "pandoraTrack::RecoChPerfect"
+physics.producers.pandoracalonosce.SpacePointModuleLabel:      "pandora::RecoChPerfect"
+physics.producers.pandoracalonosce.TrackModuleLabel:           "pandoraTrack::RecoChPerfect"
+physics.producers.pandorapid.CalorimetryModuleLabel:           "pandoracalo::RecoChPerfect"
+physics.producers.pandorapid.TrackModuleLabel:                 "pandoraTrack::RecoChPerfect"
+physics.producers.pandoraShowercalo.ShowerTag:                 "pandoraShower::RecoChPerfect"
+physics.producers.pandoraShowercalo.SpacePointTag:             "pandora::RecoChPerfect"
+physics.producers.pandoraShowercalonosce.ShowerTag:            "pandoraShower::RecoChPerfect"
+physics.producers.pandoraShowercalonosce.SpacePointTag:        "pandora::RecoChPerfect"
+physics.producers.pandoracali.CalorimetryModuleLabel:          "pandoracalo::RecoChPerfect"
+physics.producers.pandoracali.HitModuleLabel:                  "hitpdune::RecoChPerfect"
+physics.producers.pandoracali.ShowerCalorimetryModuleLabel:    "pandoraShowercalo::RecoChPerfect"
+physics.producers.pandoracali.ShowerModuleLabel:               "pandoraShower::RecoChPerfect"
+physics.producers.pandoracali.TrackModuleLabel:                "pandoraTrack::RecoChPerfect"
+physics.producers.pandoracalipid.CalorimetryModuleLabel:       "pandoracali::RecoChPerfect"
+physics.producers.pandoracalipid.TrackModuleLabel:             "pandoraTrack::RecoChPerfect"
+physics.producers.emtrkmichelid.ClusterModuleLabel:            "pandora::RecoChPerfect"
+physics.producers.emtrkmichelid.HitModuleLabel:                "hitpdune::RecoChPerfect"
+physics.producers.emtrkmichelid.WireLabel:                     "wclsdatasp:gauss:RecoChPerfect"
+physics.producers.anoderpiercersT0.HitProducer:                "pandoraTrack::RecoChPerfect"
+physics.producers.anoderpiercersT0.PFPProducer:                "pandora::RecoChPerfect"
+physics.producers.anoderpiercersT0.TrackProducer:              "pandoraTrack::RecoChPerfect"
+physics.producers.pandora2Track.PFParticleLabel:               "pandora::RecoChPerfect"
+physics.producers.pandora2calo.SpacePointModuleLabel:          "pandora::RecoChPerfect"
+physics.producers.pandora2calo.TrackModuleLabel:               "pandora2Track::RecoChPerfect"
+physics.producers.pandora2calonosce.SpacePointModuleLabel:     "pandora::RecoChPerfect"
+physics.producers.pandora2calonosce.TrackModuleLabel:          "pandora2Track::RecoChPerfect"
+physics.producers.pandora2pid.CalorimetryModuleLabel:          "pandora2calo::RecoChPerfect"
+physics.producers.pandora2pid.TrackModuleLabel:                "pandora2Track::RecoChPerfect"
+physics.producers.pandora2Shower.PFParticleLabel:              "pandora::RecoChPerfect"
+physics.producers.pandora2Showercalo.ShowerTag:                "pandora2Shower::RecoChPerfect"
+physics.producers.pandora2Showercalo.SpacePointTag:            "pandora::RecoChPerfect"
+physics.producers.pandora2Showercalonosce.ShowerTag:           "pandora2Shower::RecoChPerfect"
+physics.producers.pandora2Showercalonosce.SpacePointTag:       "pandora::RecoChPerfect"
+physics.producers.pandora2cali.CalorimetryModuleLabel:         "pandora2calo::RecoChPerfect"
+physics.producers.pandora2cali.HitModuleLabel:                 "hitpdune::RecoChPerfect"
+physics.producers.pandora2cali.ShowerCalorimetryModuleLabel:   "pandora2Showercalo::RecoChPerfect"
+physics.producers.pandora2cali.ShowerModuleLabel:              "pandora2Shower::RecoChPerfect"
+physics.producers.pandora2cali.TrackModuleLabel:               "pandora2Track::RecoChPerfect"
+physics.producers.pandora2calipid.CalorimetryModuleLabel:      "pandora2cali::RecoChPerfect"
+physics.producers.pandora2calipid.TrackModuleLabel:            "pandora2Track::RecoChPerfect"
 
-services.ChannelStatusService: @local::pdsp_channel_status_perfect
+# No bad channels.
+physics.producers.wclsdatasp.wcls_main.configs: [ "pgrapher/experiment/pdsp/wcls-sp_perfect.jsonnet" ]
+services.ChannelStatusService:                  @local::pdsp_channel_status_perfect
 
 outputs.out1.outputCommands: [ "keep *" ]
 outputs.out1.fileName: "%ifb_perfectreco.root"

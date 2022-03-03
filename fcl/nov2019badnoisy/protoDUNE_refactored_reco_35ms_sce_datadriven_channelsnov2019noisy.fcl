@@ -272,11 +272,65 @@ pdsp_channel_status_nov2019badnoisy: {
   NoisyChannels: [ ]
 }
 
-services.ChannelStatusService: @local::pdsp_channel_status_nov2019badnoisy
+// Don't want to risk wildcarding the process name.
+physics.producers.caldata.DigitLabel:                          "tpcrawdecoder:daq" 
+physics.producers.wclsdatasp.wcls_main.params.raw_input_label: "caldata:dataprep:RecoChnov2019Noisy"
+physics.producers.gaushit.CalDataModuleLabel:                  "wclsdatasp:gauss:RecoChnov2019Noisy"
+physics.filters.nhitsfilter.HitModule:                         "gaushit::RecoChnov2019Noisy"
+physics.producers.reco3d.HitLabel:                             "gaushit::RecoChnov2019Noisy"
+physics.producers.hitpdune.HitModuleLabel:                     "gaushit::RecoChnov2019Noisy"
+physics.producers.hitpdune.SpModuleLabel:                      "reco3d::RecoChnov2019Noisy"
+physics.producers.pandora.HitFinderModuleLabel:                "hitpdune::RecoChnov2019Noisy"
+physics.producers.pandoraWriter.HitFinderModuleLabel:          "hitpdune::RecoChnov2019Noisy"
+physics.producers.pandoraTrack.PFParticleLabel:                "pandora::RecoChnov2019Noisy"
+physics.producers.pandoraShower.PFParticleLabel:               "pandora::RecoChnov2019Noisy"
+physics.producers.pandoracalo.SpacePointModuleLabel:           "pandora::RecoChnov2019Noisy"
+physics.producers.pandoracalo.TrackModuleLabel:                "pandoraTrack::RecoChnov2019Noisy"
+physics.producers.pandoracalonosce.SpacePointModuleLabel:      "pandora::RecoChnov2019Noisy"
+physics.producers.pandoracalonosce.TrackModuleLabel:           "pandoraTrack::RecoChnov2019Noisy"
+physics.producers.pandorapid.CalorimetryModuleLabel:           "pandoracalo::RecoChnov2019Noisy"
+physics.producers.pandorapid.TrackModuleLabel:                 "pandoraTrack::RecoChnov2019Noisy"
+physics.producers.pandoraShowercalo.ShowerTag:                 "pandoraShower::RecoChnov2019Noisy"
+physics.producers.pandoraShowercalo.SpacePointTag:             "pandora::RecoChnov2019Noisy"
+physics.producers.pandoraShowercalonosce.ShowerTag:            "pandoraShower::RecoChnov2019Noisy"
+physics.producers.pandoraShowercalonosce.SpacePointTag:        "pandora::RecoChnov2019Noisy"
+physics.producers.pandoracali.CalorimetryModuleLabel:          "pandoracalo::RecoChnov2019Noisy"
+physics.producers.pandoracali.HitModuleLabel:                  "hitpdune::RecoChnov2019Noisy"
+physics.producers.pandoracali.ShowerCalorimetryModuleLabel:    "pandoraShowercalo::RecoChnov2019Noisy"
+physics.producers.pandoracali.ShowerModuleLabel:               "pandoraShower::RecoChnov2019Noisy"
+physics.producers.pandoracali.TrackModuleLabel:                "pandoraTrack::RecoChnov2019Noisy"
+physics.producers.pandoracalipid.CalorimetryModuleLabel:       "pandoracali::RecoChnov2019Noisy"
+physics.producers.pandoracalipid.TrackModuleLabel:             "pandoraTrack::RecoChnov2019Noisy"
+physics.producers.emtrkmichelid.ClusterModuleLabel:            "pandora::RecoChnov2019Noisy"
+physics.producers.emtrkmichelid.HitModuleLabel:                "hitpdune::RecoChnov2019Noisy"
+physics.producers.emtrkmichelid.WireLabel:                     "wclsdatasp:gauss:RecoChnov2019Noisy"
+physics.producers.anoderpiercersT0.HitProducer:                "pandoraTrack::RecoChnov2019Noisy"
+physics.producers.anoderpiercersT0.PFPProducer:                "pandora::RecoChnov2019Noisy"
+physics.producers.anoderpiercersT0.TrackProducer:              "pandoraTrack::RecoChnov2019Noisy"
+physics.producers.pandora2Track.PFParticleLabel:               "pandora::RecoChnov2019Noisy"
+physics.producers.pandora2calo.SpacePointModuleLabel:          "pandora::RecoChnov2019Noisy"
+physics.producers.pandora2calo.TrackModuleLabel:               "pandora2Track::RecoChnov2019Noisy"
+physics.producers.pandora2calonosce.SpacePointModuleLabel:     "pandora::RecoChnov2019Noisy"
+physics.producers.pandora2calonosce.TrackModuleLabel:          "pandora2Track::RecoChnov2019Noisy"
+physics.producers.pandora2pid.CalorimetryModuleLabel:          "pandora2calo::RecoChnov2019Noisy"
+physics.producers.pandora2pid.TrackModuleLabel:                "pandora2Track::RecoChnov2019Noisy"
+physics.producers.pandora2Shower.PFParticleLabel:              "pandora::RecoChnov2019Noisy"
+physics.producers.pandora2Showercalo.ShowerTag:                "pandora2Shower::RecoChnov2019Noisy"
+physics.producers.pandora2Showercalo.SpacePointTag:            "pandora::RecoChnov2019Noisy"
+physics.producers.pandora2Showercalonosce.ShowerTag:           "pandora2Shower::RecoChnov2019Noisy"
+physics.producers.pandora2Showercalonosce.SpacePointTag:       "pandora::RecoChnov2019Noisy"
+physics.producers.pandora2cali.CalorimetryModuleLabel:         "pandora2calo::RecoChnov2019Noisy"
+physics.producers.pandora2cali.HitModuleLabel:                 "hitpdune::RecoChnov2019Noisy"
+physics.producers.pandora2cali.ShowerCalorimetryModuleLabel:   "pandora2Showercalo::RecoChnov2019Noisy"
+physics.producers.pandora2cali.ShowerModuleLabel:              "pandora2Shower::RecoChnov2019Noisy"
+physics.producers.pandora2cali.TrackModuleLabel:               "pandora2Track::RecoChnov2019Noisy"
+physics.producers.pandora2calipid.CalorimetryModuleLabel:      "pandora2cali::RecoChnov2019Noisy"
+physics.producers.pandora2calipid.TrackModuleLabel:            "pandora2Track::RecoChnov2019Noisy"
 
+// Label noisy channels as dead.
+services.ChannelStatusService:                  @local::pdsp_channel_status_nov2019badnoisy
 physics.producers.wclsdatasp.wcls_main.configs: [ "pgrapher/experiment/pdsp/wcls-sp_nov2019noisy.jsonnet" ]
-
-tools.pdsp_RemoveBadChannels.RemoveNoisyChs: false # Have put noisy in bad list already
+tools.pdsp_RemoveBadChannels.RemoveNoisyChs:    false # Have put noisy in bad list already
 
 outputs.out1.outputCommands: [ "keep *" ]
 outputs.out1.fileName: "%ifb_nov2019noisyreco.root"

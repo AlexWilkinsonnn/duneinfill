@@ -17,11 +17,64 @@ pdsp_channel_status_perfect: {
 
 }
 
-physics.producers.caldata.DigitLabel: "infill" 
+// Don't want to risk wildcarding the process name.
+physics.producers.caldata.DigitLabel:                          "infill" 
+physics.producers.wclsdatasp.wcls_main.params.raw_input_label: "caldata:dataprep:RecoChInfill"
+physics.producers.gaushit.CalDataModuleLabel:                  "wclsdatasp:gauss:RecoChInfill"
+physics.filters.nhitsfilter.HitModule:                         "gaushit::RecoChInfill"
+physics.producers.reco3d.HitLabel:                             "gaushit::RecoChInfill"
+physics.producers.hitpdune.HitModuleLabel:                     "gaushit::RecoChInfill"
+physics.producers.hitpdune.SpModuleLabel:                      "reco3d::RecoChInfill"
+physics.producers.pandora.HitFinderModuleLabel:                "hitpdune::RecoChInfill"
+physics.producers.pandoraWriter.HitFinderModuleLabel:          "hitpdune::RecoChInfill"
+physics.producers.pandoraTrack.PFParticleLabel:                "pandora::RecoChInfill"
+physics.producers.pandoraShower.PFParticleLabel:               "pandora::RecoChInfill"
+physics.producers.pandoracalo.SpacePointModuleLabel:           "pandora::RecoChInfill"
+physics.producers.pandoracalo.TrackModuleLabel:                "pandoraTrack::RecoChInfill"
+physics.producers.pandoracalonosce.SpacePointModuleLabel:      "pandora::RecoChInfill"
+physics.producers.pandoracalonosce.TrackModuleLabel:           "pandoraTrack::RecoChInfill"
+physics.producers.pandorapid.CalorimetryModuleLabel:           "pandoracalo::RecoChInfill"
+physics.producers.pandorapid.TrackModuleLabel:                 "pandoraTrack::RecoChInfill"
+physics.producers.pandoraShowercalo.ShowerTag:                 "pandoraShower::RecoChInfill"
+physics.producers.pandoraShowercalo.SpacePointTag:             "pandora::RecoChInfill"
+physics.producers.pandoraShowercalonosce.ShowerTag:            "pandoraShower::RecoChInfill"
+physics.producers.pandoraShowercalonosce.SpacePointTag:        "pandora::RecoChInfill"
+physics.producers.pandoracali.CalorimetryModuleLabel:          "pandoracalo::RecoChInfill"
+physics.producers.pandoracali.HitModuleLabel:                  "hitpdune::RecoChInfill"
+physics.producers.pandoracali.ShowerCalorimetryModuleLabel:    "pandoraShowercalo::RecoChInfill"
+physics.producers.pandoracali.ShowerModuleLabel:               "pandoraShower::RecoChInfill"
+physics.producers.pandoracali.TrackModuleLabel:                "pandoraTrack::RecoChInfill"
+physics.producers.pandoracalipid.CalorimetryModuleLabel:       "pandoracali::RecoChInfill"
+physics.producers.pandoracalipid.TrackModuleLabel:             "pandoraTrack::RecoChInfill"
+physics.producers.emtrkmichelid.ClusterModuleLabel:            "pandora::RecoChInfill"
+physics.producers.emtrkmichelid.HitModuleLabel:                "hitpdune::RecoChInfill"
+physics.producers.emtrkmichelid.WireLabel:                     "wclsdatasp:gauss:RecoChInfill"
+physics.producers.anoderpiercersT0.HitProducer:                "pandoraTrack::RecoChInfill"
+physics.producers.anoderpiercersT0.PFPProducer:                "pandora::RecoChInfill"
+physics.producers.anoderpiercersT0.TrackProducer:              "pandoraTrack::RecoChInfill"
+physics.producers.pandora2Track.PFParticleLabel:               "pandora::RecoChInfill"
+physics.producers.pandora2calo.SpacePointModuleLabel:          "pandora::RecoChInfill"
+physics.producers.pandora2calo.TrackModuleLabel:               "pandora2Track::RecoChInfill"
+physics.producers.pandora2calonosce.SpacePointModuleLabel:     "pandora::RecoChInfill"
+physics.producers.pandora2calonosce.TrackModuleLabel:          "pandora2Track::RecoChInfill"
+physics.producers.pandora2pid.CalorimetryModuleLabel:          "pandora2calo::RecoChInfill"
+physics.producers.pandora2pid.TrackModuleLabel:                "pandora2Track::RecoChInfill"
+physics.producers.pandora2Shower.PFParticleLabel:              "pandora::RecoChInfill"
+physics.producers.pandora2Showercalo.ShowerTag:                "pandora2Shower::RecoChInfill"
+physics.producers.pandora2Showercalo.SpacePointTag:            "pandora::RecoChInfill"
+physics.producers.pandora2Showercalonosce.ShowerTag:           "pandora2Shower::RecoChInfill"
+physics.producers.pandora2Showercalonosce.SpacePointTag:       "pandora::RecoChInfill"
+physics.producers.pandora2cali.CalorimetryModuleLabel:         "pandora2calo::RecoChInfill"
+physics.producers.pandora2cali.HitModuleLabel:                 "hitpdune::RecoChInfill"
+physics.producers.pandora2cali.ShowerCalorimetryModuleLabel:   "pandora2Showercalo::RecoChInfill"
+physics.producers.pandora2cali.ShowerModuleLabel:              "pandora2Shower::RecoChInfill"
+physics.producers.pandora2cali.TrackModuleLabel:               "pandora2Track::RecoChInfill"
+physics.producers.pandora2calipid.CalorimetryModuleLabel:      "pandora2cali::RecoChInfill"
+physics.producers.pandora2calipid.TrackModuleLabel:            "pandora2Track::RecoChInfill"
 
+// Infilled channels not to be treated as bad.
 physics.producers.wclsdatasp.wcls_main.configs: [ "pgrapher/experiment/pdsp/wcls-sp_perfect.jsonnet" ]
-
-services.ChannelStatusService: @local::pdsp_channel_status_perfect
+services.ChannelStatusService:                  @local::pdsp_channel_status_perfect
 
 // Keep all data products for running the evd fcl
 outputs.out1.outputCommands:   [ "keep *" ]
