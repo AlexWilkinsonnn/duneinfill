@@ -345,7 +345,7 @@ void Infill::InfillEvd::beginJob()
 
   for (const raw::ChannelID_t &ch : fDeadChs) {
     const readout::ROPID rID = fGeom->ChannelToROP(ch);
-
+    // std::cout << ch - fGeom->FirstChannelInROP(rID) << " ";
     for (const geo::TPCID &tID : fGeom->ROPtoTPCs(rID)) { 
       // Width is drift coordinate x. DetHalfWidth: Normal is 178.813, wall facing is 0.736875.
       if (fGeom->DetHalfWidth(tID) > 170) { // Not facing wall.
@@ -358,6 +358,7 @@ void Infill::InfillEvd::beginJob()
       }
     }
   }
+  // std::cout << "\n";
 
   // Get collection and induction ROPs with the most dead channels.
   std::map<readout::ROPID, std::vector<raw::ChannelID_t>>::iterator mostDeadChsZ =

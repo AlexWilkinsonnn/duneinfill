@@ -77,5 +77,5 @@ physics.producers.wclsdatasp.wcls_main.configs: [ "pgrapher/experiment/pdsp/wcls
 services.ChannelStatusService:                  @local::pdsp_channel_status_perfect
 
 // Drop any odjects no longer needed as this is the last reco fcl
-outputs.out1.outputCommands: [ "keep *", "drop raw::RawDigits*_*_*_*", "drop raw::OpDetWaveforms*_*_*_*", "drop sim::SimChannels*_*_*_*", "drop recob::Wires_caldata_dataprep_*", "drop *_wclsdatasp_wiener_*" ]
+outputs.out1.outputCommands: [ "keep *", "drop raw::RawDigits*_*_*_*", "drop raw::OpDetWaveforms*_*_*_*", "drop recob::Wires_caldata_dataprep_*", "drop *_wclsdatasp_wiener_*" ]
 outputs.out1.fileName:       "%ifb_infillreco.root"
