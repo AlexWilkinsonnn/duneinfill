@@ -1,0 +1,62 @@
+#include "services_dune.fcl"
+
+process_name: Drop4WebEvd
+
+source:
+{
+  module_type: RootInput
+  maxEvents:   -1
+}
+
+services:
+{
+  @table::protodune_services
+  TimeTracker:          @local::dune_time_tracker
+  MemoryTracker:        @local::dune_memory_tracker
+}
+
+services.Geometry.GDML: "protodune_v7.gdml"
+services.Geometry.ROOT: "protodune_v7.gdml"
+
+outputs:
+{
+  out1:
+  {
+    module_type: RootOutput
+    fileName:    "%ifb_dropped4webevd.root"
+    outputCommands: [ "keep *",
+                      "drop raw::RawDigits*_*_*_*",
+                      "drop raw::OpDetWaveforms*_*_*_*",
+                      "drop recob::Wires_caldata_dataprep_*",
+                      "drop *_wclsdatasp_wiener_*",
+                      "drop sim::SimChannels*_*_*_*",
+                      "drop recob::SpacePoints*_*_*_*",
+                      "drop *_wclsdatasp_gauss_*",
+                      // "drop *_pandora2_*_*",
+                      // "drop *_pandora2Track_*_*",
+                      // "drop *_pandora2Shower_*_*",
+                      "drop *_pandora2Showercalonosce_*_*",
+                      // "drop *_pandora2calo_*_*",
+                      // "drop *_pandora2cali_*_*",
+                      "drop recob::OpFlashes*_*_*_*",
+                      "drop recob::PointCharges*_*_*_*",
+                      "drop *_ophit_*_*",
+                      "drop *_largeant_*_*" ]
+    compressionLevel: 1 #zlib argument (0-9)
+    fastCloning: true
+  }
+}
+
+
+physics:
+{
+  producers:
+  {
+  }
+  reco:          [ ]
+  stream1:       [ out1 ]
+  trigger_paths: [reco]
+  end_paths:     [stream1]
+}
+
+services.Geometry: @local::protodune_geo
