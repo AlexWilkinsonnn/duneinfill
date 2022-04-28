@@ -1,0 +1,30 @@
+#include "services_dune.fcl"
+#include "ExportDeadChPatternsConfig.fcl"
+
+process_name: ExportDeadChPatterns
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1
+}
+
+services:
+{
+  @table::protodune_services
+  TFileService: { fileName: "pdune_deadchpatterns.root" }
+  ChannelStatusService: @local:pdsp_channel_status_nov2019
+}
+
+physics:
+{
+  analyzers:
+  {
+    deadchpatterns: @local::ExportDeadChPatterns
+  }
+  path0:     [ deadchpatterns ]
+  end_paths: [ path0 ]
+}
+
+sevices.Geometry: @local::protodune_geo
+
