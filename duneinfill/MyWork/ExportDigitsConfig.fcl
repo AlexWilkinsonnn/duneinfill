@@ -1,0 +1,12 @@
+BEGIN_PROLOG
+
+ExportDigits:
+{
+  module_type: "ExportDigits"
+  CryoIndex:   0
+  TpcIndices:  [1, 2, 5, 6] // 1 is the TPC the beam plub points into
+
+  DigitsLabel: "tpcrawdecoder:daq:DetsimStage1"
+}
+
+END_PROLOG
