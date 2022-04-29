@@ -13,7 +13,7 @@ services:
 {
   @table::protodune_services
   TFileService: { fileName: "pdune_deadchpatterns.root" }
-  ChannelStatusService: @local:pdsp_channel_status_nov2019
+  ChannelStatusService: @local::pdsp_channel_status_nov2019
 }
 
 physics:
